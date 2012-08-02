@@ -69,6 +69,7 @@ import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -206,6 +207,14 @@ public class EditGroupAction extends PortletAction {
 			WebKeys.THEME_DISPLAY);
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+
+		Group group = GroupServiceUtil.getGroup(groupId);
+
+		if(group.isStaged()){
+			ServiceContext sc=ServiceContextFactory.getInstance(actionRequest);
+			StagingUtil.disableStaging(
+					GroupServiceUtil.getGroup(sc.getScopeGroupId()), group, sc);
+		}
 
 		GroupServiceUtil.deleteGroup(groupId);
 
