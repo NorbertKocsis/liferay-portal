@@ -636,10 +636,19 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		// Staging
 
-		unscheduleStaging(group);
-
 		if (group.hasStagingGroup()) {
-			deleteGroup(group.getStagingGroup().getGroupId());
+			unscheduleStaging(group);
+
+			try {
+				StagingUtil.disableStaging(group, group, serviceContext);
+
+				deleteGroup(group.getStagingGroup().getGroupId());
+			}
+			catch (Exception e) {
+				if (_log.isErrorEnabled()) {
+					_log.error("Unable to disable staging for group: " + group);
+				}
+			}
 		}
 
 		// Themes
@@ -743,7 +752,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		// Group
 
-		if (group.isOrganization() && group.isSite()) {
+		if (!group.isStagingGroup() &&
+			group.isOrganization() && group.isSite()) {
+
 			group.setSite(false);
 
 			groupPersistence.update(group, false);
