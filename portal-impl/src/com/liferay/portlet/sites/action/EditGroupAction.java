@@ -207,14 +207,6 @@ public class EditGroupAction extends PortletAction {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		Group group = GroupServiceUtil.getGroup(groupId);
-
-		if(group.isStaged()){
-			ServiceContext sc=ServiceContextFactory.getInstance(actionRequest);
-			StagingUtil.disableStaging(
-					GroupServiceUtil.getGroup(sc.getScopeGroupId()), group, sc);
-		}
-
 		GroupServiceUtil.deleteGroup(groupId);
 
 		LiveUsers.deleteGroup(themeDisplay.getCompanyId(), groupId);
