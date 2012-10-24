@@ -38,15 +38,17 @@ String thumbnailStyle = (String)request.getAttribute("liferay-ui:app-view-entry:
 String title = (String)request.getAttribute("liferay-ui:app-view-entry:title");
 String url = (String)request.getAttribute("liferay-ui:app-view-entry:url");
 
-title = HtmlUtil.escape(HtmlUtil.unescape(title));
-description = HtmlUtil.escape(HtmlUtil.unescape(description));
+// Title and Description may or may not be escaped already, see LPS-30417
 
-String shortTitle = HtmlUtil.escape(StringUtil.shorten(HtmlUtil.unescape(title), 60));
+title = HtmlUtil.unescape(title);
+description = HtmlUtil.unescape(description);
+
+String shortTitle = StringUtil.shorten(title, 60);
 %>
 
 <c:choose>
 	<c:when test='<%= displayStyle.equals("icon") %>'>
-		<div class="app-view-entry-taglib entry-display-style display-<%= displayStyle %> <%= showCheckbox ? "selectable" : StringPool.BLANK %>" data-draggable="<%= showCheckbox ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-title="<%= shortTitle %>">
+		<div class="app-view-entry-taglib entry-display-style display-<%= displayStyle %> <%= showCheckbox ? "selectable" : StringPool.BLANK %>" data-draggable="<%= showCheckbox ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-title="<%= HtmlUtil.escapeAttribute(shortTitle) %>">
 			<c:if test="<%= showCheckbox %>">
 					<aui:input cssClass="overlay entry-selector" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" type="checkbox" value="<%= rowCheckerId %>" />
 			</c:if>
@@ -74,7 +76,7 @@ String shortTitle = HtmlUtil.escape(StringUtil.shorten(HtmlUtil.unescape(title),
 				</div>
 
 				<span class="entry-title">
-					<%= shortTitle %>
+					<%= HtmlUtil.escape(shortTitle) %>
 
 					<c:if test="<%= !folder && ((status == WorkflowConstants.STATUS_DRAFT) || (status == WorkflowConstants.STATUS_PENDING)) %>">
 
@@ -91,8 +93,8 @@ String shortTitle = HtmlUtil.escape(StringUtil.shorten(HtmlUtil.unescape(title),
 		</div>
 	</c:when>
 	<c:when test='<%= displayStyle.equals("descriptive") %>'>
-		<div class="app-view-entry-taglib entry-display-style display-<%= displayStyle %> <%= showCheckbox ? "selectable" : StringPool.BLANK %>" data-draggable="<%= showCheckbox ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-title="<%= title %>">
-			<a class="entry-link" data-folder="<%= folder ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-folder-id="<%= rowCheckerId %>" href="<%= url %>" title="<%= HtmlUtil.escapeAttribute(HtmlUtil.unescape(title) + " - " + HtmlUtil.unescape(description)) %>">
+		<div class="app-view-entry-taglib entry-display-style display-<%= displayStyle %> <%= showCheckbox ? "selectable" : StringPool.BLANK %>" data-draggable="<%= showCheckbox ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-title="<%= HtmlUtil.escapeAttribute(shortTitle) %>">
+			<a class="entry-link" data-folder="<%= folder ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-folder-id="<%= rowCheckerId %>" href="<%= url %>" title="<%= HtmlUtil.escapeAttribute(title + " - " + description) %>">
 				<div class="entry-thumbnail" style="<%= thumbnailDivStyle %>">
 					<img alt="" border="no" src="<%= thumbnailSrc %>" style="<%= thumbnailStyle %>" />
 
@@ -106,7 +108,7 @@ String shortTitle = HtmlUtil.escape(StringUtil.shorten(HtmlUtil.unescape(title),
 				</div>
 
 				<span class="entry-title">
-					<%= title %>
+					<%= HtmlUtil.escape(title) %>
 
 					<c:if test="<%= !folder && ((status == WorkflowConstants.STATUS_DRAFT) || (status == WorkflowConstants.STATUS_PENDING)) %>">
 
@@ -121,7 +123,7 @@ String shortTitle = HtmlUtil.escape(StringUtil.shorten(HtmlUtil.unescape(title),
 				</span>
 
 				<span class="entry-description">
-					<%= description %>
+					<%= HtmlUtil.escape(description) %>
 
 					<c:if test="<%= Validator.isNotNull(assetCategoryClassName) && (assetCategoryClassPK > 0) %>">
 						<div class="categories">
