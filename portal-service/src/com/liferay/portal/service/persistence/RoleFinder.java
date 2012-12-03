@@ -57,6 +57,9 @@ public interface RoleFinder {
 		long userId, long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	public java.util.List<com.liferay.portal.model.Role> findByUserUserGroupRole(
+		long userId) throws com.liferay.portal.kernel.exception.SystemException;
+
 	public com.liferay.portal.model.Role findByC_N(long companyId,
 		java.lang.String name)
 		throws com.liferay.portal.NoSuchRoleException,

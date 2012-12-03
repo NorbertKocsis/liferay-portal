@@ -633,6 +633,20 @@ public class RoleLocalServiceWrapper implements RoleLocalService,
 	}
 
 	/**
+	* Returns all the user's roles inherited from user groups.
+	*
+	* @param userId the primary key of the user
+	* @return the user's roles inherited from user groups
+	* @throws SystemException if a system exception occurred
+	* @see com.liferay.portal.service.persistence.RoleFinder#findByUserUserGroupRole(
+	long, long)
+	*/
+	public java.util.List<com.liferay.portal.model.Role> getUserUserGroupRoles(
+		long userId) throws com.liferay.portal.kernel.exception.SystemException {
+		return _roleLocalService.getUserUserGroupRoles(userId);
+	}
+
+	/**
 	* Returns the union of all the user's roles within the groups.
 	*
 	* @param userId the primary key of the user

@@ -333,6 +333,11 @@ public class UserGroupGroupRoleLocalServiceUtil {
 		return getService().hasUserGroupGroupRole(userGroupId, groupId, roleName);
 	}
 
+	public static java.util.List<com.liferay.portal.model.UserGroupGroupRole> getUserGroupGroupRolesByUser(
+		long userId) throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getUserGroupGroupRolesByUser(userId);
+	}
+
 	public static UserGroupGroupRoleLocalService getService() {
 		if (_service == null) {
 			_service = (UserGroupGroupRoleLocalService)PortalBeanLocatorUtil.locate(UserGroupGroupRoleLocalService.class.getName());
