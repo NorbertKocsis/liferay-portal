@@ -20,6 +20,7 @@
 User selUser = (User)request.getAttribute("user.selUser");
 
 List<Group> groups = (List<Group>)request.getAttribute("user.groups");
+List<Group> inheritedSites = (List<Group>)request.getAttribute("user.inheritedSites");
 %>
 
 <liferay-util:buffer var="removeGroupIcon">
@@ -95,6 +96,64 @@ List<Group> groups = (List<Group>)request.getAttribute("user.groups");
 		url='<%= "javascript:" + renderResponse.getNamespace() + "openGroupSelector();" %>'
 	/>
 </c:if>
+
+<br /><br />
+
+<h3><liferay-ui:message key="inherited-sites" /></h3>
+
+<liferay-ui:search-container
+	headerNames="name,roles"
+>
+	<liferay-ui:search-container-results
+		results="<%= inheritedSites %>"
+		total="<%= inheritedSites.size() %>"
+	/>
+
+	<liferay-ui:search-container-row
+		className="com.liferay.portal.model.Group"
+		escapedModel="<%= true %>"
+		keyProperty="groupId"
+		modelVar="inheritedSite"
+		rowIdProperty="friendlyURL"
+	>
+		<liferay-ui:search-container-column-text
+			name="name"
+			value="<%= HtmlUtil.escape(inheritedSite.getDescriptiveName(locale)) %>"
+		/>
+
+		<liferay-ui:search-container-column-text
+			buffer="buffer"
+			name="roles"
+		>
+
+			<%
+			List<UserGroupRole> userGroupRoles = UserGroupRoleLocalServiceUtil.getUserGroupRoles(selUser.getUserId(), inheritedSite.getGroupId());
+
+			for (UserGroupRole userGroupRole : userGroupRoles) {
+				Role role = RoleLocalServiceUtil.getRole(userGroupRole.getRoleId());
+
+				buffer.append(HtmlUtil.escape(role.getTitle(locale)));
+				buffer.append(StringPool.COMMA_AND_SPACE);
+			}
+
+			List<Role> inheritedRoles = RoleLocalServiceUtil.getUserUserGroupRoles(selUser.getUserId());
+
+			for (Role role : inheritedRoles) {
+				buffer.append(HtmlUtil.escape(role.getTitle(locale)));
+				buffer.append(StringPool.COMMA_AND_SPACE);
+			}
+
+			if (!userGroupRoles.isEmpty()) {
+				buffer.setIndex(buffer.index() - 1);
+			}
+			%>
+
+		</liferay-ui:search-container-column-text>
+
+	</liferay-ui:search-container-row>
+
+	<liferay-ui:search-iterator paginate="<%= false %>" />
+</liferay-ui:search-container>
 
 <aui:script>
 	function <portlet:namespace />openGroupSelector() {
