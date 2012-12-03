@@ -699,6 +699,21 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	}
 
 	/**
+	 * Returns all the user's roles inherited from user groups.
+	 *
+	 * @param  userId the primary key of the user
+	 * @return the user's roles inherited from user groups
+	 * @throws SystemException if a system exception occurred
+	 * @see    com.liferay.portal.service.persistence.RoleFinder#findByUserUserGroupRole(
+	 *         long, long)
+	 */
+	public List<Role> getUserUserGroupRoles(long userId)
+		throws SystemException {
+
+		return roleFinder.findByUserUserGroupRole(userId);
+	}
+
+	/**
 	 * Returns the union of all the user's roles within the groups.
 	 *
 	 * @param  userId the primary key of the user

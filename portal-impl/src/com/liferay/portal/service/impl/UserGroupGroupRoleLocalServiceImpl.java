@@ -24,6 +24,7 @@ import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.UserGroupGroupRoleLocalServiceBaseImpl;
 import com.liferay.portal.service.persistence.UserGroupGroupRolePK;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -184,6 +185,23 @@ public class UserGroupGroupRoleLocalServiceImpl
 		throws SystemException {
 
 		return userGroupGroupRolePersistence.findByG_R(groupId, roleId);
+	}
+
+	public List<UserGroupGroupRole> getUserGroupGroupRolesByUser(long userId)
+		throws SystemException {
+
+		List<UserGroup> userGroups = userGroupLocalService.getUserUserGroups(
+			userId);
+
+		List<UserGroupGroupRole> result = new LinkedList<UserGroupGroupRole>();
+
+		for (UserGroup userGroup : userGroups) {
+			result.addAll(
+				userGroupGroupRolePersistence.findByUserGroupId(
+					userGroup.getUserGroupId()));
+		}
+
+		return result;
 	}
 
 	public boolean hasUserGroupGroupRole(
