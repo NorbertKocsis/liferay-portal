@@ -338,7 +338,6 @@ userGroupRoles.addAll(siteRoles);
 	</liferay-ui:search-container>
 </c:if>
 
-
 <aui:script>
 	var <portlet:namespace />groupRolesGroupIds = ['<%= ListUtil.toString(userGroupRoles, UserGroupRole.GROUP_ID_ACCESSOR, "', '") %>'];
 	var <portlet:namespace />groupRolesRoleIds = ['<%= ListUtil.toString(userGroupRoles, UserGroupRole.ROLE_ID_ACCESSOR, "', '") %>'];

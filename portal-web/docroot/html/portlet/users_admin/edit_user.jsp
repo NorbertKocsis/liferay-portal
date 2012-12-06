@@ -133,18 +133,19 @@ else if (selUser != null) {
 
 List<UserGroupGroupRole> inheritedSiteRoles = Collections.emptyList();
 
-if(selUser != null) {
+if (selUser != null) {
 	inheritedSiteRoles = UserGroupGroupRoleLocalServiceUtil.getUserGroupGroupRolesByUser(selUser.getUserId());
 }
 
 List<Group> inheritedSites = GroupLocalServiceUtil.getUserGroupsRelatedGroups(userGroups);
+
 List<Group> organizationsRelatedGroups = Collections.emptyList();
 
-if(!organizations.isEmpty()) {
+if (!organizations.isEmpty()) {
 	organizationsRelatedGroups = GroupLocalServiceUtil.getOrganizationsRelatedGroups(organizations);
 
-	for(Group group : organizationsRelatedGroups) {
-		if(!inheritedSites.contains(group)) {
+	for (Group group : organizationsRelatedGroups) {
+		if (!inheritedSites.contains(group)) {
 			inheritedSites.add(group);
 		}
 	}
