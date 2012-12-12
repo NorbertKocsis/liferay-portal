@@ -64,6 +64,7 @@ import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.impl.LayoutImpl;
 import com.liferay.portal.model.impl.PortletPreferencesImpl;
 import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.LayoutLocalServiceBaseImpl;
 import com.liferay.portal.util.PortalUtil;
@@ -1851,8 +1852,23 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		Layout layout = layoutPersistence.findByG_P_L(
 			groupId, privateLayout, layoutId);
 
+		LayoutTypePortlet ltp = (LayoutTypePortlet) layout.getLayoutType();
+
+		List<String> oldPortletIds = ltp.getPortletIds();
+
 		layout.setModifiedDate(now);
 		layout.setTypeSettings(typeSettingsProperties.toString());
+
+		List<String> newPortletIds = ltp.getPortletIds();
+
+		if (oldPortletIds != null) {
+			oldPortletIds.removeAll(newPortletIds);
+
+			PortletLocalServiceUtil.deletePortlets(
+				layout.getCompanyId(),
+				oldPortletIds.toArray(new String[oldPortletIds.size()]),
+				layout.getPlid());
+		}
 
 		layoutPersistence.update(layout);
 
