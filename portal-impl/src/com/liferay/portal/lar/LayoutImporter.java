@@ -1176,11 +1176,8 @@ public class LayoutImporter {
 		if (layout.isTypeArticle()) {
 			importJournalArticle(portletDataContext, layout, layoutElement);
 
-			LayoutUtil.update(importedLayout);
-
 			importedLayout = LayoutLocalServiceUtil.updateLayout(
-				importedLayout.getGroupId(), importedLayout.isPrivateLayout(),
-				importedLayout.getLayoutId(), layout.getTypeSettings());
+					importedLayout, layout.getTypeSettings());
 		}
 		else if (layout.isTypePortlet() &&
 				 Validator.isNotNull(layout.getTypeSettings()) &&
@@ -1236,18 +1233,12 @@ public class LayoutImporter {
 				}
 			}
 
-			LayoutUtil.update(importedLayout);
-
 			importedLayout = LayoutLocalServiceUtil.updateLayout(
-				importedLayout.getGroupId(), importedLayout.isPrivateLayout(),
-				importedLayout.getLayoutId(), layout.getTypeSettings());
+				importedLayout, layout.getTypeSettings());
 		}
 		else {
-			LayoutUtil.update(importedLayout);
-
 			importedLayout = LayoutLocalServiceUtil.updateLayout(
-				importedLayout.getGroupId(), importedLayout.isPrivateLayout(),
-				importedLayout.getLayoutId(), layout.getTypeSettings());
+					importedLayout, layout.getTypeSettings());
 		}
 
 		importedLayout.setHidden(layout.isHidden());
