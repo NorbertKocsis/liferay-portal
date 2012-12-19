@@ -1661,6 +1661,38 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		return layout;
 	}
 
+	public Layout updateLayout(Layout layout, String typeSettings)
+			throws PortalException, SystemException {
+
+		Date now = new Date();
+
+		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+
+		typeSettingsProperties.fastLoad(typeSettings);
+
+		LayoutTypePortlet ltp = (LayoutTypePortlet) layout.getLayoutType();
+
+		List<String> oldPortletIds = ltp.getPortletIds();
+
+		layout.setModifiedDate(now);
+		layout.setTypeSettings(typeSettingsProperties.toString());
+
+		List<String> newPortletIds = ltp.getPortletIds();
+
+		if (oldPortletIds != null) {
+			oldPortletIds.removeAll(newPortletIds);
+
+			PortletLocalServiceUtil.deletePortlets(
+					layout.getCompanyId(),
+					oldPortletIds.toArray(new String[oldPortletIds.size()]),
+					layout.getPlid());
+		}
+
+		layoutPersistence.update(layout);
+
+		return layout;
+	}
+
 	/**
 	 * Updates the layout.
 	 *
@@ -1843,36 +1875,10 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			String typeSettings)
 		throws PortalException, SystemException {
 
-		Date now = new Date();
-
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
-
-		typeSettingsProperties.fastLoad(typeSettings);
-
 		Layout layout = layoutPersistence.findByG_P_L(
 			groupId, privateLayout, layoutId);
 
-		LayoutTypePortlet ltp = (LayoutTypePortlet) layout.getLayoutType();
-
-		List<String> oldPortletIds = ltp.getPortletIds();
-
-		layout.setModifiedDate(now);
-		layout.setTypeSettings(typeSettingsProperties.toString());
-
-		List<String> newPortletIds = ltp.getPortletIds();
-
-		if (oldPortletIds != null) {
-			oldPortletIds.removeAll(newPortletIds);
-
-			PortletLocalServiceUtil.deletePortlets(
-				layout.getCompanyId(),
-				oldPortletIds.toArray(new String[oldPortletIds.size()]),
-				layout.getPlid());
-		}
-
-		layoutPersistence.update(layout);
-
-		return layout;
+		return updateLayout(layout, typeSettings);
 	}
 
 	/**
