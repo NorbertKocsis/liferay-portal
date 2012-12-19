@@ -1156,6 +1156,13 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 		return _layoutLocalService.updateFriendlyURL(plid, friendlyURL);
 	}
 
+	public com.liferay.portal.model.Layout updateLayout(
+		com.liferay.portal.model.Layout layout, java.lang.String typeSettings)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _layoutLocalService.updateLayout(layout, typeSettings);
+	}
+
 	/**
 	* Updates the layout.
 	*

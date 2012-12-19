@@ -1176,6 +1176,13 @@ public class LayoutLocalServiceUtil {
 		return getService().updateFriendlyURL(plid, friendlyURL);
 	}
 
+	public static com.liferay.portal.model.Layout updateLayout(
+		com.liferay.portal.model.Layout layout, java.lang.String typeSettings)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().updateLayout(layout, typeSettings);
+	}
+
 	/**
 	* Updates the layout.
 	*

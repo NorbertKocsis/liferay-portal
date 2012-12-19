@@ -1046,6 +1046,11 @@ public interface LayoutLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public com.liferay.portal.model.Layout updateLayout(
+		com.liferay.portal.model.Layout layout, java.lang.String typeSettings)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
 	/**
 	* Updates the layout.
 	*
