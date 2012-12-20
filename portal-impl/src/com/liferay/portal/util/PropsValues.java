@@ -437,6 +437,8 @@ public class PropsValues {
 
 	public static final String DEFAULT_USER_PRIVATE_LAYOUTS_LAR = PropsUtil.get(PropsKeys.DEFAULT_USER_PRIVATE_LAYOUTS_LAR);
 
+	public static final boolean DEFAULT_USER_PRIVATE_LAYOUTS_LAR_THEME_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.DEFAULT_USER_PRIVATE_LAYOUTS_LAR_THEME_ENABLED));
+
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_COLUMN = PropsUtil.get(PropsKeys.DEFAULT_USER_PUBLIC_LAYOUT_COLUMN);
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_FRIENDLY_URL = PropsUtil.get(PropsKeys.DEFAULT_USER_PUBLIC_LAYOUT_FRIENDLY_URL);
@@ -454,6 +456,8 @@ public class PropsValues {
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_WAP_THEME_ID = PropsUtil.get(PropsKeys.DEFAULT_USER_PUBLIC_LAYOUT_WAP_THEME_ID);
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUTS_LAR = PropsUtil.get(PropsKeys.DEFAULT_USER_PUBLIC_LAYOUTS_LAR);
+
+	public static final boolean DEFAULT_USER_PUBLIC_LAYOUTS_LAR_THEME_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.DEFAULT_USER_PUBLIC_LAYOUTS_LAR_THEME_ENABLED));
 
 	public static final String DEFAULT_WAP_COLOR_SCHEME_ID = PropsUtil.get(PropsKeys.DEFAULT_WAP_COLOR_SCHEME_ID);
 

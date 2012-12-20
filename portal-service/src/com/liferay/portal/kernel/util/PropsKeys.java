@@ -537,6 +537,8 @@ public interface PropsKeys {
 
 	public static final String DEFAULT_USER_PRIVATE_LAYOUTS_LAR = "default.user.private.layouts.lar";
 
+	public static final String DEFAULT_USER_PRIVATE_LAYOUTS_LAR_THEME_ENABLED = "default.user.private.layouts.lar.theme.enabled";
+
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_COLUMN = "default.user.public.layout.column-";
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_FRIENDLY_URL = "default.user.public.layout.friendly.url";
@@ -554,6 +556,8 @@ public interface PropsKeys {
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_WAP_THEME_ID = "default.user.public.layout.wap.theme.id";
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUTS_LAR = "default.user.public.layouts.lar";
+
+	public static final String DEFAULT_USER_PUBLIC_LAYOUTS_LAR_THEME_ENABLED = "default.user.public.layouts.lar.theme.enabled";
 
 	public static final String DEFAULT_WAP_COLOR_SCHEME_ID = "default.wap.color.scheme.id";
 
