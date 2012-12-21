@@ -1306,8 +1306,7 @@ public class ServicePreAction extends Action {
 	}
 
 	protected void addDefaultLayoutsByLAR(
-			long userId, long groupId, boolean privateLayout, File larFile,
-			boolean addTheme)
+			long userId, long groupId, boolean privateLayout, File larFile)
 		throws PortalException, SystemException {
 
 		Map<String, String[]> parameterMap = new HashMap<String, String[]>();
@@ -1325,13 +1324,17 @@ public class ServicePreAction extends Action {
 			PortletDataHandlerKeys.PORTLET_SETUP,
 			new String[] {Boolean.TRUE.toString()});
 
-		if (addTheme) {
-		parameterMap.put(
-			PortletDataHandlerKeys.THEME,
-			new String[] {Boolean.TRUE.toString()});
-		parameterMap.put(
-			PortletDataHandlerKeys.THEME_REFERENCE,
-			new String[] {Boolean.TRUE.toString()});
+		if ((privateLayout &&
+			PropsValues.DEFAULT_USER_PRIVATE_LAYOUTS_LAR_THEME_ENABLED) ||
+			(!privateLayout &&
+			PropsValues.DEFAULT_USER_PUBLIC_LAYOUTS_LAR_THEME_ENABLED)) {
+
+			parameterMap.put(
+				PortletDataHandlerKeys.THEME,
+				new String[] {Boolean.TRUE.toString()});
+			parameterMap.put(
+				PortletDataHandlerKeys.THEME_REFERENCE,
+				new String[] {Boolean.TRUE.toString()});
 		}
 
 		LayoutLocalServiceUtil.importLayouts(
@@ -1428,8 +1431,7 @@ public class ServicePreAction extends Action {
 
 		if (privateLARFile != null) {
 			addDefaultLayoutsByLAR(
-				user.getUserId(), userGroup.getGroupId(), true, privateLARFile,
-				PropsValues.DEFAULT_USER_PRIVATE_LAYOUTS_LAR_THEME_ENABLED);
+				user.getUserId(), userGroup.getGroupId(), true, privateLARFile);
 		}
 		else {
 			addDefaultUserPrivateLayoutByProperties(
@@ -1526,8 +1528,7 @@ public class ServicePreAction extends Action {
 
 		if (publicLARFile != null) {
 			addDefaultLayoutsByLAR(
-				user.getUserId(), userGroup.getGroupId(), false, publicLARFile,
-				PropsValues.DEFAULT_USER_PUBLIC_LAYOUTS_LAR_THEME_ENABLED);
+				user.getUserId(), userGroup.getGroupId(), false, publicLARFile);
 		}
 		else {
 			addDefaultUserPublicLayoutByProperties(
