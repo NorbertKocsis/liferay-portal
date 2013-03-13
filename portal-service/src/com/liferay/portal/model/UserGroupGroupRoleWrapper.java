@@ -231,6 +231,24 @@ public class UserGroupGroupRoleWrapper implements UserGroupGroupRole,
 		_userGroupGroupRole.persist();
 	}
 
+	public com.liferay.portal.model.Group getGroup()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupGroupRole.getGroup();
+	}
+
+	public com.liferay.portal.model.UserGroup getUserGroup()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupGroupRole.getUserGroup();
+	}
+
+	public com.liferay.portal.model.Role getRole()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupGroupRole.getRole();
+	}
+
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */

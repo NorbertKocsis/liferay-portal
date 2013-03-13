@@ -131,13 +131,33 @@ else if (selUser != null) {
 	}
 }
 
+List<UserGroupGroupRole> inheritedSiteRoles = Collections.emptyList();
+
+if (selUser != null) {
+	inheritedSiteRoles = UserGroupGroupRoleLocalServiceUtil.getUserGroupGroupRolesByUser(selUser.getUserId());
+}
+
+List<Group> inheritedSites = GroupLocalServiceUtil.getUserGroupsRelatedGroups(userGroups);
+
+List<Group> organizationsRelatedGroups = Collections.emptyList();
+
+if (!organizations.isEmpty()) {
+	organizationsRelatedGroups = GroupLocalServiceUtil.getOrganizationsRelatedGroups(organizations);
+
+	for (Group group : organizationsRelatedGroups) {
+		if (!inheritedSites.contains(group)) {
+			inheritedSites.add(group);
+		}
+	}
+}
+
 List<Group> allGroups = new ArrayList<Group>();
 
 allGroups.addAll(groups);
 allGroups.addAll(GroupLocalServiceUtil.getOrganizationsGroups(organizations));
-allGroups.addAll(GroupLocalServiceUtil.getOrganizationsRelatedGroups(organizations));
+allGroups.addAll(organizationsRelatedGroups);
 allGroups.addAll(GroupLocalServiceUtil.getUserGroupsGroups(userGroups));
-allGroups.addAll(GroupLocalServiceUtil.getUserGroupsRelatedGroups(userGroups));
+allGroups.addAll(inheritedSites);
 
 String[] mainSections = PropsValues.USERS_FORM_ADD_MAIN;
 String[] identificationSections = PropsValues.USERS_FORM_ADD_IDENTIFICATION;
@@ -188,10 +208,12 @@ String taglibOnSubmit = "event.preventDefault(); " + renderResponse.getNamespace
 	request.setAttribute("user.selContact", selContact);
 	request.setAttribute("user.passwordPolicy", passwordPolicy);
 	request.setAttribute("user.groups", groups);
+	request.setAttribute("user.inheritedSites", inheritedSites);
 	request.setAttribute("user.organizations", organizations);
 	request.setAttribute("user.roles", roles);
 	request.setAttribute("user.organizationRoles", organizationRoles);
 	request.setAttribute("user.siteRoles", siteRoles);
+	request.setAttribute("user.inheritedSiteRoles", inheritedSiteRoles);
 	request.setAttribute("user.userGroups", userGroups);
 	request.setAttribute("user.allGroups", allGroups);
 

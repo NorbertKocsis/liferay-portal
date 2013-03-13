@@ -24,6 +24,7 @@ Long[] organizationIds = UsersAdminUtil.getOrganizationIds(organizations);
 List<Role> roles = (List<Role>)request.getAttribute("user.roles");
 List<UserGroupRole> organizationRoles = (List<UserGroupRole>)request.getAttribute("user.organizationRoles");
 List<UserGroupRole> siteRoles = (List<UserGroupRole>)request.getAttribute("user.siteRoles");
+List<UserGroupGroupRole> inheritedSiteRoles = (List<UserGroupGroupRole>)request.getAttribute("user.inheritedSiteRoles");
 List<Group> allGroups = (List<Group>)request.getAttribute("user.allGroups");
 
 List<UserGroupRole> userGroupRoles = new ArrayList<UserGroupRole>();
@@ -236,8 +237,8 @@ userGroupRoles.addAll(siteRoles);
 <h3><liferay-ui:message key="site-roles" /></h3>
 
 <c:choose>
-	<c:when test="<%= groups.isEmpty() %>">
-		<liferay-ui:message key="this-user-does-not-belong-to-a-site-to-which-a-site-role-can-be-assigned" />
+	<c:when test="<%= siteRoles.isEmpty() %>">
+		<liferay-ui:message key="this-user-does-not-have-site-roles" />
 	</c:when>
 	<c:otherwise>
 		<liferay-ui:search-container
@@ -323,6 +324,53 @@ userGroupRoles.addAll(siteRoles);
 		</aui:script>
 	</c:otherwise>
 </c:choose>
+
+<br /><br />
+
+<h3><liferay-ui:message key="inherited-site-roles" /></h3>
+
+<c:if test="<%= inheritedSiteRoles.isEmpty() %>">
+	<liferay-ui:message key="this-user-does-not-have-inherited-site-roles" />
+</c:if>
+
+<c:if test="<%= !inheritedSiteRoles.isEmpty() %>">
+	<liferay-ui:search-container
+		headerNames="title,site,user-group"
+		id="inheritedSiteRolesSearchContainer"
+	>
+		<liferay-ui:search-container-results
+			results="<%= inheritedSiteRoles %>"
+			total="<%= inheritedSiteRoles.size() %>"
+		/>
+
+		<liferay-ui:search-container-row
+			className="com.liferay.portal.model.UserGroupGroupRole"
+			keyProperty="roleId"
+			modelVar="userGroupGroupRole"
+		>
+			<liferay-util:param name="className" value="<%= RolesAdminUtil.getCssClassName(userGroupGroupRole.getRole()) %>" />
+			<liferay-util:param name="classHoverName" value="<%= RolesAdminUtil.getCssClassName(userGroupGroupRole.getRole()) %>" />
+
+			<liferay-ui:search-container-column-text
+				name="title"
+				value="<%= HtmlUtil.escape(userGroupGroupRole.getRole().getTitle(locale)) %>"
+			/>
+
+			<liferay-ui:search-container-column-text
+				name="site"
+				value="<%= HtmlUtil.escape(userGroupGroupRole.getGroup().getDescriptiveName(locale)) %>"
+			/>
+
+			<liferay-ui:search-container-column-text
+				name="user-group"
+				value="<%= HtmlUtil.escape(userGroupGroupRole.getUserGroup().getName()) %>"
+			/>
+
+		</liferay-ui:search-container-row>
+
+		<liferay-ui:search-iterator paginate="<%= false %>" />
+	</liferay-ui:search-container>
+</c:if>
 
 <aui:script>
 	var <portlet:namespace />groupRolesGroupIds = ['<%= ListUtil.toString(userGroupRoles, UserGroupRole.GROUP_ID_ACCESSOR, "', '") %>'];
