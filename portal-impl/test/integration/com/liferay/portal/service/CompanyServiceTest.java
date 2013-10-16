@@ -275,17 +275,22 @@ public class CompanyServiceTest {
 		try {
 			field.set(null, Boolean.TRUE);
 
-			CompanyLocalServiceUtil.updateCompany(
+			_company = CompanyLocalServiceUtil.updateCompany(
 				_company.getCompanyId(), validVirtualHostName, _company.getMx(),
 				_company.getMaxUsers(), _company.getActive());
+
+			String updatedVirtualHostName_0 = _company.getVirtualHostname();
 
 			_company = CompanyLocalServiceUtil.getCompanyById(
 				_company.getCompanyId());
 
-			String updatedVirtualHostName = _company.getVirtualHostname();
+			String updatedVirtualHostName_1 = _company.getVirtualHostname();
+
+			Assert.assertEquals(
+				updatedVirtualHostName_0, updatedVirtualHostName_1);
 
 			Assert.assertNotEquals(
-				originalVirtualHostName, updatedVirtualHostName);
+				originalVirtualHostName, updatedVirtualHostName_1);
 		}
 		finally {
 			field.set(null, value);
