@@ -85,6 +85,7 @@ import com.liferay.portlet.sites.util.Sites;
 import java.io.File;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -893,6 +894,9 @@ public class LayoutImporter {
 			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
 				Layout.class + ".layout");
 
+		Map<Long, NavigableSet<Layout>> layoutSets =
+			new HashMap<Long, NavigableSet<Layout>>();
+
 		List<Layout> newLayouts = new LinkedList<Layout>();
 
 		for (Element element : _layoutElements) {
@@ -904,6 +908,15 @@ public class LayoutImporter {
 
 				Layout layout = layoutMap.get(layoutId);
 
+				NavigableSet<Layout> layoutSet = layoutSets.get(
+					layout.getParentLayoutId());
+
+				if (layoutSet == null) {
+					layoutSets.put(
+						layout.getParentLayoutId(),
+						new TreeSet<Layout>(new LayoutPriorityComparator()));
+				}
+
 				newLayouts.add(
 					LayoutLocalServiceUtil.getLayout(layout.getPlid()));
 			}
@@ -914,12 +927,27 @@ public class LayoutImporter {
 
 		unmodifiedLayouts.removeAll(newLayouts);
 
-		NavigableSet<Layout> layoutSet = new TreeSet<Layout>(
-			new LayoutPriorityComparator());
+		if (unmodifiedLayouts.isEmpty()) {
+			return;
+		}
 
-		layoutSet.addAll(unmodifiedLayouts);
+		for (Layout layout : unmodifiedLayouts) {
+			NavigableSet<Layout> layoutSet = layoutSets.get(
+				layout.getParentLayoutId());
+
+			if (layoutSet != null) {
+				layoutSet.add(layout);
+			}
+		}
 
 		for (Layout layout : newLayouts) {
+			NavigableSet<Layout> layoutSet = layoutSets.get(
+				layout.getParentLayoutId());
+
+			if (layoutSet.isEmpty()) {
+				continue;
+			}
+
 			SortedSet<Layout> tailSet = layoutSet.tailSet(layout, true);
 
 			int priority = layout.getPriority();
@@ -936,8 +964,10 @@ public class LayoutImporter {
 			layoutSet.add(layout);
 		}
 
-		for (Layout layout : layoutSet) {
-			LayoutUtil.update(layout);
+		for (NavigableSet<Layout> layoutSet : layoutSets.values()) {
+			for (Layout layout : layoutSet) {
+				LayoutUtil.update(layout);
+			}
 		}
 	}
 
