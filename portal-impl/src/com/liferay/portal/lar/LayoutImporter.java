@@ -901,96 +901,27 @@ public class LayoutImporter {
 	protected void updateLayoutPriorities(PortletDataContext portletDataContext)
 		throws PortalException, SystemException {
 
-		Map<Long, Layout> layouts =
-			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
-				Layout.class + ".layout");
-
-		Map<Long, NavigableSet<Layout>> navigableSets =
-			new HashMap<Long, NavigableSet<Layout>>();
-
-		List<Layout> importedLayouts = new LinkedList<Layout>();
-
-		// Gathering imported layouts and create a navigable set for each parent
-		// layout ID to handle each priority queue separately
-
 		for (Element layoutElement : _layoutElements) {
 			String action = layoutElement.attributeValue(Constants.ACTION);
 
-			if (action.equals(Constants.ADD)) {
-				long layoutId = GetterUtil.getLong(
-					layoutElement.attributeValue("layout-id"));
+			if (action.equals(Constants.SKIP)) {
+				String p = layoutElement.attributeValue("priority");
 
-				Layout layout = layouts.get(layoutId);
+				int priority = Integer.valueOf(p);
 
-				NavigableSet<Layout> navigableSet = navigableSets.get(
-					layout.getParentLayoutId());
+				String uuid = layoutElement.attributeValue("uuid");
 
-				if (navigableSet == null) {
-					navigableSets.put(
-						layout.getParentLayoutId(),
-						new TreeSet<Layout>(new LayoutPriorityComparator()));
+				try {
+					Layout layout =
+						LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
+							uuid, portletDataContext.getScopeGroupId(),
+								portletDataContext.isPrivateLayout());
+
+					layout.setPriority(priority);
+
+					LayoutUtil.update(layout);
 				}
-
-				importedLayouts.add(
-					LayoutLocalServiceUtil.getLayout(layout.getPlid()));
-			}
-		}
-
-		List<Layout> unmodifiedLayouts = new LinkedList<Layout>(
-			LayoutLocalServiceUtil.getLayouts(
-				portletDataContext.getGroupId(),
-				portletDataContext.isPrivateLayout()));
-
-		unmodifiedLayouts.removeAll(importedLayouts);
-
-		// Priorities are up to date if there are no unmodified layouts
-
-		if (unmodifiedLayouts.isEmpty()) {
-			return;
-		}
-
-		// Fill the navigable sets with layouts that were not updated by the
-		// import
-
-		for (Layout unmodifiedLayout : unmodifiedLayouts) {
-			NavigableSet<Layout> navigableSet = navigableSets.get(
-				unmodifiedLayout.getParentLayoutId());
-
-			if (navigableSet != null) {
-				navigableSet.add(unmodifiedLayout);
-			}
-		}
-
-		for (Layout importedLayout : importedLayouts) {
-			NavigableSet<Layout> navigableSet = navigableSets.get(
-				importedLayout.getParentLayoutId());
-
-			if (navigableSet.isEmpty()) {
-				continue;
-			}
-
-			// Ensure that priorities are unique
-
-			Set<Layout> tailLayouts = navigableSet.tailSet(
-				importedLayout, true);
-
-			int priority = importedLayout.getPriority();
-
-			for (Layout tailLayout : tailLayouts) {
-				if (tailLayout.getPriority() == priority) {
-					tailLayout.setPriority(++priority);
-				}
-				else {
-					break;
-				}
-			}
-
-			navigableSet.add(importedLayout);
-		}
-
-		for (NavigableSet<Layout> navigableSet : navigableSets.values()) {
-			for (Layout layout : navigableSet) {
-				LayoutUtil.update(layout);
+				catch (Exception e) {}
 			}
 		}
 	}

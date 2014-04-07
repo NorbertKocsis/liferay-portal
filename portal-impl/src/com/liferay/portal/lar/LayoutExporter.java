@@ -577,6 +577,8 @@ public class LayoutExporter {
 			Element layoutElement = portletDataContext.getExportDataElement(
 				layout);
 
+			layoutElement.addAttribute("priority", layout.getPriority()+"");
+
 			layoutElement.addAttribute(Constants.ACTION, Constants.SKIP);
 
 			return;
