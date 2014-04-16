@@ -319,8 +319,8 @@ public abstract class BaseIndexer implements Indexer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, Locale,
-	 *             String, PortletURL, PortletRequest, PortletResponse)}
+	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, String,
+	 *             PortletURL, PortletRequest, PortletResponse)}
 	 */
 	@Deprecated
 	@Override
@@ -329,17 +329,18 @@ public abstract class BaseIndexer implements Indexer {
 			PortletURL portletURL)
 		throws SearchException {
 
-		return getSummary(document, locale, snippet, portletURL, null, null);
+		return getSummary(document, snippet, portletURL, null, null);
 	}
 
 	@Override
 	public Summary getSummary(
-			Document document, Locale locale, String snippet,
-			PortletURL portletURL, PortletRequest portletRequest,
-			PortletResponse portletResponse)
+			Document document, String snippet, PortletURL portletURL,
+			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws SearchException {
 
 		try {
+			Locale locale = getLocale(portletRequest);
+
 			Summary summary = doGetSummary(
 				document, locale, snippet, portletURL, portletRequest,
 				portletResponse);
@@ -1595,6 +1596,14 @@ public abstract class BaseIndexer implements Indexer {
 
 	protected String[] getDefaultSelectedLocalizedFieldNames() {
 		return _defaultSelectedLocalizedFieldNames;
+	}
+
+	protected Locale getLocale(PortletRequest portletRequest) {
+		if (portletRequest != null) {
+			return portletRequest.getLocale();
+		}
+
+		return LocaleUtil.getMostRelevantLocale();
 	}
 
 	protected Set<String> getLocalizedCountryNames(Country country) {
