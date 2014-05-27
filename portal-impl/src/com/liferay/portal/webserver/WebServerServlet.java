@@ -14,6 +14,7 @@
 
 package com.liferay.portal.webserver;
 
+import com.liferay.portal.kernel.dao.shard.ShardUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.image.ImageBag;
@@ -427,45 +428,54 @@ public class WebServerServlet extends HttpServlet {
 
 		long imageId = getImageId(request);
 
-		if (imageId > 0) {
-			image = ImageServiceUtil.getImage(imageId);
+		try {
+			long companyId = PortalUtil.getCompanyId(request);
 
-			String path = GetterUtil.getString(request.getPathInfo());
+			ShardUtil.pushCompanyService(companyId);
 
-			if (path.startsWith("/user_female_portrait") ||
-				path.startsWith("/user_male_portrait") ||
-				path.startsWith("/user_portrait")) {
+			if (imageId > 0) {
+				image = ImageServiceUtil.getImage(imageId);
 
-				image = getUserPortraitImageResized(image, imageId);
+				String path = GetterUtil.getString(request.getPathInfo());
+
+				if (path.startsWith("/user_female_portrait") ||
+					path.startsWith("/user_male_portrait") ||
+					path.startsWith("/user_portrait")) {
+
+					image = getUserPortraitImageResized(image, imageId);
+				}
+			}
+			else {
+				String uuid = ParamUtil.getString(request, "uuid");
+				long groupId = ParamUtil.getLong(request, "groupId");
+				boolean igSmallImage = ParamUtil.getBoolean(
+					request, "igSmallImage");
+
+				if (Validator.isNotNull(uuid) && (groupId > 0)) {
+					try {
+						FileEntry fileEntry =
+							DLAppServiceUtil.getFileEntryByUuidAndGroupId(
+								uuid, groupId);
+
+						image = convertFileEntry(igSmallImage, fileEntry);
+					}
+					catch (Exception e) {
+					}
+				}
+			}
+
+			if (getDefault) {
+				if (image == null) {
+					if (_log.isWarnEnabled()) {
+						_log.warn("Get a default image for " + imageId);
+					}
+
+					image = getDefaultImage(request, imageId);
+				}
 			}
 		}
-		else {
-			String uuid = ParamUtil.getString(request, "uuid");
-			long groupId = ParamUtil.getLong(request, "groupId");
-			boolean igSmallImage = ParamUtil.getBoolean(
-				request, "igSmallImage");
-
-			if (Validator.isNotNull(uuid) && (groupId > 0)) {
-				try {
-					FileEntry fileEntry =
-						DLAppServiceUtil.getFileEntryByUuidAndGroupId(
-							uuid, groupId);
-
-					image = convertFileEntry(igSmallImage, fileEntry);
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-
-		if (getDefault) {
-			if (image == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn("Get a default image for " + imageId);
-				}
-
-				image = getDefaultImage(request, imageId);
-			}
+		finally {
+			ShardUtil.popCompanyService();
 		}
 
 		return image;
