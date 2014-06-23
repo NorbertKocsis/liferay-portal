@@ -31,7 +31,7 @@ String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(script);
 <div class="alert alert-danger hide lfr-message-response" id="<portlet:namespace />messageContainer"></div>
 
 <liferay-ui:tabs
-	names='<%= LanguageUtil.get(pageContext, "view[action]") + "," + LanguageUtil.get(pageContext, "source") %>'
+	names='<%= LanguageUtil.get(request, "view[action]") + "," + LanguageUtil.get(request, "source") %>'
 	refresh="<%= false %>"
 >
 	<liferay-ui:section>
@@ -132,14 +132,14 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getS
 		messageContainer.show();
 	};
 
-	var getContentXSD = function() {
+	var getContentDefinition = function() {
 		var content;
 
 		if (formEditor && !isViewTabActive()) {
 			content = formEditor.get(STR_VALUE);
 		}
 		else {
-			content = formBuilder.getXSD();
+			content = formBuilder.getDefinition();
 		}
 
 		return content;
@@ -190,7 +190,7 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getS
 		getLoadingMask().toggle(true);
 
 		if (!Lang.isValue(content)) {
-			content = window.<portlet:namespace />getContentXSD();
+			content = window.<portlet:namespace />getContentDefinition();
 		}
 
 		content = xmlFormatter.minify(content);
@@ -204,7 +204,7 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getS
 				dataType: 'JSON',
 				on: {
 					failure: function(message) {
-						displayMessage(MESSAGE_FAILURE, '<%= UnicodeLanguageUtil.get(pageContext, "your-request-failed-to-complete") %>');
+						displayMessage(MESSAGE_FAILURE, '<%= UnicodeLanguageUtil.get(request, "your-request-failed-to-complete") %>');
 					},
 					success: function(event) {
 						var responseData = this.get('responseData');
@@ -232,7 +232,7 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getS
 	var switchToSource = function() {
 		setEditorSize();
 
-		var content = formBuilder.getXSD();
+		var content = formBuilder.getDefinition();
 
 		content = getXMLFormatter().format(content);
 
@@ -309,12 +309,12 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getS
 
 	window.<portlet:namespace />formBuilder = formBuilder;
 
-	window.<portlet:namespace />getContentXSD = getContentXSD;
+	window.<portlet:namespace />getContentDefinition = getContentDefinition;
 
 	Liferay.on(
 		'<portlet:namespace />saveTemplate',
 		function(event) {
-			A.one('#<portlet:namespace />scriptContent').val(getContentXSD());
+			A.one('#<portlet:namespace />scriptContent').val(getContentDefinition());
 		}
 	);
 

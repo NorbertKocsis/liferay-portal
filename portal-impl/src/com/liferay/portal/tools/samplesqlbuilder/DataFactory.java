@@ -2528,7 +2528,7 @@ public class DataFactory {
 
 	protected DDMStructureModel newDDMStructureModel(
 		long groupId, long userId, long classNameId, String structureKey,
-		String xsd) {
+		String definition) {
 
 		DDMStructureModel dDMStructureModel = new DDMStructureModelImpl();
 
@@ -2553,7 +2553,7 @@ public class DataFactory {
 
 		dDMStructureModel.setName(sb.toString());
 
-		dDMStructureModel.setXsd(xsd);
+		dDMStructureModel.setDefinition(definition);
 		dDMStructureModel.setStorageType("xml");
 
 		return dDMStructureModel;

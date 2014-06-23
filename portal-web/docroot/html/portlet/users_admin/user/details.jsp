@@ -68,7 +68,7 @@ if (selContact != null) {
 			for (int i = 0; i < fields.size(); i++) {
 				String field = fields.get(i);
 
-				sb.append(LanguageUtil.get(pageContext, TextFormatter.format(field, TextFormatter.K)));
+				sb.append(LanguageUtil.get(request, TextFormatter.format(field, TextFormatter.K)));
 
 				if ((i + 1) < fields.size()) {
 					sb.append(StringPool.COMMA_AND_SPACE);
@@ -138,7 +138,7 @@ if (selContact != null) {
 						/>
 					</c:when>
 					<c:otherwise>
-						<img alt="<liferay-ui:message key="portrait" />" src="<%= selUser.getPortraitURL(themeDisplay) %>" />
+						<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="portrait" />" src="<%= selUser.getPortraitURL(themeDisplay) %>" />
 					</c:otherwise>
 				</c:choose>
 			</c:if>

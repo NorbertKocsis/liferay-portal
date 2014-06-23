@@ -17,7 +17,6 @@ package com.liferay.portlet.dynamicdatamapping.model.impl;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -110,7 +109,8 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 	public DDMForm getDDMForm() {
 		if (_ddmForm == null) {
 			try {
-				_ddmForm = DDMFormXSDDeserializerUtil.deserialize(getXsd());
+				_ddmForm = DDMFormXSDDeserializerUtil.deserialize(
+					getDefinition());
 			}
 			catch (Exception e) {
 				_log.error(e, e);
@@ -290,9 +290,7 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 	}
 
 	@Override
-	public DDMForm getFullHierarchyDDMForm()
-		throws PortalException, SystemException {
-
+	public DDMForm getFullHierarchyDDMForm() throws PortalException {
 		DDMForm ddmForm = getDDMForm();
 
 		DDMStructure parentDDMStructure = getParentDDMStructure();
@@ -535,9 +533,10 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 			getDefaultLanguageId());
 
 		try {
-			setXsd(
+			setDefinition(
 				DDMXMLUtil.updateXMLDefaultLocale(
-					getXsd(), ddmStructureDefaultLocale, defaultImportLocale));
+					getDefinition(), ddmStructureDefaultLocale,
+					defaultImportLocale));
 		}
 		catch (Exception e) {
 			throw new LocaleException(LocaleException.TYPE_EXPORT_IMPORT, e);
@@ -547,6 +546,16 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 	@Override
 	public void setDDMForm(DDMForm ddmForm) {
 		_ddmForm = ddmForm;
+	}
+
+	@Override
+	public void setDefinition(String definition) {
+		super.setDefinition(definition);
+
+		_ddmForm = null;
+		_localizedFieldsMap = null;
+		_localizedPersistentFieldsMap = null;
+		_localizedTransientFieldsMap = null;
 	}
 
 	@Override
@@ -573,23 +582,11 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 	}
 
 	@Override
-	public void setXsd(String xsd) {
-		super.setXsd(xsd);
-
-		_ddmForm = null;
-		_localizedFieldsMap = null;
-		_localizedPersistentFieldsMap = null;
-		_localizedTransientFieldsMap = null;
-	}
-
-	@Override
 	public void updateDDMForm(DDMForm ddmForm) {
-		setXsd(DDMFormXSDSerializerUtil.serialize(ddmForm));
+		setDefinition(DDMFormXSDSerializerUtil.serialize(ddmForm));
 	}
 
-	protected DDMStructure getParentDDMStructure()
-		throws PortalException, SystemException {
-
+	protected DDMStructure getParentDDMStructure() throws PortalException {
 		if (getParentStructureId() == 0) {
 			return null;
 		}
@@ -602,7 +599,7 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 
 	private Document _getDocument() throws PortalException {
 		try {
-			return SAXReaderUtil.read(getXsd());
+			return SAXReaderUtil.read(getDefinition());
 		}
 		catch (DocumentException de) {
 			throw new PortalException(de);

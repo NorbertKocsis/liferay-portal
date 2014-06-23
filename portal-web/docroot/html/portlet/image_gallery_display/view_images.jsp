@@ -29,7 +29,7 @@ DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(re
 <c:choose>
 	<c:when test="<%= results.isEmpty() %>">
 		<div class="alert alert-info">
-			<%= LanguageUtil.get(pageContext, "there-are-no-media-files-in-this-folder") %>
+			<%= LanguageUtil.get(request, "there-are-no-media-files-in-this-folder") %>
 		</div>
 	</c:when>
 	<c:otherwise>
@@ -110,14 +110,14 @@ DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(re
 					<div class="image-icon">
 						<a class="image-link preview" <%= (hasAudio || hasVideo) ? "data-options=\"height=" + playerHeight + "&thumbnailURL=" + HtmlUtil.escapeURL(DLUtil.getPreviewURL(fileEntry, fileVersion, themeDisplay, "&videoThumbnail=1")) + "&width=640" + dataOptions + "\"" : StringPool.BLANK %> href="<%= href %>" thumbnailId="<%= thumbnailId %>" title="<%= HtmlUtil.escape(fileEntry.getTitle()) + " - " + HtmlUtil.escape(fileEntry.getDescription()) %>">
 							<span class="image-thumbnail">
-								<img alt="<%= HtmlUtil.escape(fileEntry.getTitle()) + " - " + HtmlUtil.escape(fileEntry.getDescription()) %>" src="<%= src %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
+								<img alt="<%= HtmlUtil.escapeAttribute(fileEntry.getTitle()) + " - " + HtmlUtil.escapeAttribute(fileEntry.getDescription()) %>" src="<%= src %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
 
 								<c:if test="<%= fileShortcut != null %>">
-									<img alt="<liferay-ui:message key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
+									<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
 								</c:if>
 
 								<c:if test="<%= fileEntry.isCheckedOut() %>">
-									<img alt="<liferay-ui:message key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
+									<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
 								</c:if>
 							</span>
 
@@ -173,7 +173,7 @@ DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(re
 							<div class="image-icon">
 								<a class="image-link" href="<%= viewFolderURL.toString() %>" title="<%= HtmlUtil.escape(curFolder.getName()) + " - " + HtmlUtil.escape(curFolder.getDescription()) %>">
 									<span class="image-thumbnail">
-										<img alt="<liferay-ui:message key="repository" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
+										<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="repository" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
 									</span>
 
 									<span class="image-title"><%= HtmlUtil.escape(StringUtil.shorten(curFolder.getName(), 60)) %></span>
@@ -187,8 +187,8 @@ DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(re
 						%>
 
 							<div class="image-icon">
-								<span class="error image-thumbnail" title="<%= LanguageUtil.get(pageContext, "an-unexpected-error-occurred-while-connecting-to-the-repository") %>">
-									<img alt="<liferay-ui:message key="error" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
+								<span class="error image-thumbnail" title="<%= LanguageUtil.get(request, "an-unexpected-error-occurred-while-connecting-to-the-repository") %>">
+									<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="error" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
 
 									<span class="image-title"><%= HtmlUtil.escape(StringUtil.shorten(curFolder.getName(), 60)) %></span>
 								</span>
@@ -223,7 +223,7 @@ DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(re
 								%>
 
 								<span class="image-thumbnail">
-									<img alt="<liferay-ui:message key="folder" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
+									<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="folder" />" src="<%= folderImageSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0) %>" />
 								</span>
 
 								<span class="image-title"><%= HtmlUtil.escape(StringUtil.shorten(curFolder.getName(), 60)) %></span>
@@ -302,7 +302,7 @@ embeddedPlayerURL.setWindowState(LiferayWindowState.POP_UP);
 				</c:if>
 			},
 			delay: 5000,
-			infoTemplate: '<%= LanguageUtil.format(pageContext, "image-x-of-x", new String[] {"{current}", "{total}"}, false) %>',
+			infoTemplate: '<%= LanguageUtil.format(request, "image-x-of-x", new String[] {"{current}", "{total}"}, false) %>',
 			links: '#<portlet:namespace />imageGalleryAssetInfo .image-link.preview',
 			maxHeight: maxHeight,
 			maxWidth: maxWidth,

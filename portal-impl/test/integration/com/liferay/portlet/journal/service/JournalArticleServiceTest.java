@@ -32,8 +32,10 @@ import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.TestPropsValues;
+import com.liferay.portlet.asset.model.AssetEntry;
+import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException;
-import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
+import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil;
@@ -49,6 +51,7 @@ import com.liferay.portlet.journal.util.test.JournalTestUtil;
 import java.io.InputStream;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +121,7 @@ public class JournalArticleServiceTest {
 			"test-journal-content-html-required-field.xml", requiredFields);
 	}
 
-	@Test(expected = StructureXsdException.class)
+	@Test(expected = StructureDefinitionException.class)
 	public void testCheckArticleWithInvalidStructure() throws Exception {
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
 			JournalArticle.class.getName());
@@ -449,12 +452,44 @@ public class JournalArticleServiceTest {
 
 	@Test
 	public void testUpdateArticle() throws Exception {
+		Date oldDisplayDate = _article.getDisplayDate();
+
+		_article.setDisplayDate(new Date());
+
 		_article = JournalTestUtil.updateArticle(_article, "Version 2");
 
 		Assert.assertEquals(
 			"Version 2", _article.getTitle(LocaleUtil.getDefault()));
 		Assert.assertTrue(_article.isApproved());
 		Assert.assertEquals(1.1, _article.getVersion(), 0);
+
+		AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
+			_article.getModelClassName(), _article.getResourcePrimKey());
+
+		Assert.assertEquals(oldDisplayDate, assetEntry.getPublishDate());
+	}
+
+	@Test
+	public void testUpdateExpiredArticle() throws Exception {
+		_article = JournalTestUtil.expireArticle(
+			_group.getGroupId(), _article, _article.getVersion());
+
+		Assert.assertTrue(_article.isExpired());
+
+		_article.setDisplayDate(new Date());
+
+		_article = JournalTestUtil.updateArticle(_article, "Version 2");
+
+		Assert.assertEquals(
+			"Version 2", _article.getTitle(LocaleUtil.getDefault()));
+		Assert.assertTrue(_article.isApproved());
+		Assert.assertEquals(1.1, _article.getVersion(), 0);
+
+		AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
+			_article.getModelClassName(), _article.getResourcePrimKey());
+
+		Assert.assertEquals(
+			_article.getDisplayDate(), assetEntry.getPublishDate());
 	}
 
 	protected List<JournalArticle> addArticles(int count, String content)
@@ -562,14 +597,14 @@ public class JournalArticleServiceTest {
 	}
 
 	protected void testAddArticleRequiredFields(
-			String ddmStructureXSD, String journalArticleContent,
+			String ddmStructureDefinition, String journalArticleContent,
 			Map<String, String> requiredFields)
 		throws Exception {
 
-		String xsd = readText(ddmStructureXSD);
+		String definition = readText(ddmStructureDefinition);
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			_group.getGroupId(), JournalArticle.class.getName(), xsd);
+			_group.getGroupId(), JournalArticle.class.getName(), definition);
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
 			_group.getGroupId(), ddmStructure.getStructureId());

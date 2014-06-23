@@ -19,7 +19,6 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
@@ -77,7 +76,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.PageContext;
 
 /**
  * @author Brian Wing Shun Chan
@@ -945,8 +943,8 @@ public class PortalUtil {
 		return getPortal().getFirstMyAccountPortlet(themeDisplay);
 	}
 
-	public static String getFirstPageLayoutTypes(PageContext pageContext) {
-		return getPortal().getFirstPageLayoutTypes(pageContext);
+	public static String getFirstPageLayoutTypes(HttpServletRequest request) {
+		return getPortal().getFirstPageLayoutTypes(request);
 	}
 
 	public static Portlet getFirstSiteAdministrationPortlet(
@@ -1538,7 +1536,7 @@ public class PortalUtil {
 
 	public static PortletConfig getPortletConfig(
 			long companyId, String portletId, ServletContext servletContext)
-		throws PortletException, SystemException {
+		throws PortletException {
 
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
 			companyId, portletId);

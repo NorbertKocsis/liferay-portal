@@ -42,7 +42,7 @@ ArticleDisplayTerms displayTerms = (ArticleDisplayTerms)searchContainer.getDispl
 
 		<aui:input inlineField="<%= true %>" name="<%= displayTerms.TITLE %>" size="20" type="text" value="<%= displayTerms.getTitle() %>" />
 
-		<aui:input inlineField="<%= true %>" name="<%= displayTerms.DESCRIPTION %>" size="20" type="text" value="<%= displayTerms.getDescription() %>" />
+		<aui:input inlineField="<%= true %>" label="summary" name="<%= displayTerms.DESCRIPTION %>" size="20" type="text" value="<%= displayTerms.getDescription() %>" />
 	</aui:fieldset>
 
 	<aui:fieldset>
@@ -96,7 +96,7 @@ ArticleDisplayTerms displayTerms = (ArticleDisplayTerms)searchContainer.getDispl
 						String label = HtmlUtil.escape(curScopeLayout.getName(locale));
 
 						if (curScopeLayout.equals(layout)) {
-							label = LanguageUtil.get(pageContext, "current-page") + " (" + label + ")";
+							label = LanguageUtil.get(request, "current-page") + " (" + label + ")";
 						}
 						%>
 

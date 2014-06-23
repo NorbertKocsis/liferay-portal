@@ -63,13 +63,13 @@ else if (parentOrganizationId > 0) {
 String headerTitle = null;
 
 if (organization != null) {
-	headerTitle = LanguageUtil.format(pageContext, "edit-x", organization.getName(), false);
+	headerTitle = LanguageUtil.format(request, "edit-x", organization.getName(), false);
 }
 else if (Validator.isNotNull(type)) {
-	headerTitle = LanguageUtil.format(pageContext, "add-x", type, false);
+	headerTitle = LanguageUtil.format(request, "add-x", type, false);
 }
 else {
-	headerTitle = LanguageUtil.get(pageContext, "add-organization");
+	headerTitle = LanguageUtil.get(request, "add-organization");
 }
 %>
 
@@ -114,7 +114,7 @@ else {
 
 			<div class="organization-info">
 				<div class="float-container">
-					<img alt="<%= HtmlUtil.escape(organization.getName()) %>" class="organization-logo" src="<%= themeDisplay.getPathImage() %>/organization_logo?img_id=<%= logoId %>&t=<%= WebServerServletTokenUtil.getToken(logoId) %>" />
+					<img alt="<%= HtmlUtil.escapeAttribute(organization.getName()) %>" class="organization-logo" src="<%= themeDisplay.getPathImage() %>/organization_logo?img_id=<%= logoId %>&t=<%= WebServerServletTokenUtil.getToken(logoId) %>" />
 
 					<span class="organization-name"><%= HtmlUtil.escape(organization.getName()) %></span>
 				</div>

@@ -224,7 +224,23 @@ Some content (such as web content) needs the `PortletRequest` and
 `PortletResponse` parameters in order to be rendered.
 
 ---------------------------------------
+### DDM Structure Local Service API has no longer the `updateXSDFieldMetadata()` operation
+- **Date:** 2014-Jun-11
+- **JIRA Ticket:** LPS-47559
 
+#### What changed?
+DDM Structure Local API users should not make direct reference to its internal representation, any call to modify the its content should be done through DDMForm model.
+
+#### Who is affected?
+Applications that use the DDM Structure Local Service API might be affected.
+
+#### How should I update my code?
+You should always use DDMForm to update the DDM Structure content. You can retrieve it by calling `ddmStructure.getDDMForm()`. Peform any changes to it and then call `DDMStructureLocalServiceUtil.updateDDMStructure(ddmStructure)`.
+
+#### Why was this change made?
+This change gives users the flexibility to modify the structure content without to worry about the DDM Structure internal content representation of data.
+
+---------------------------------------
 ### aui:input taglib for type checkbox does not create a hidden input anymore
 - **Date:** 2014-Jun-16
 - **JIRA Ticket:** LPS-44228
@@ -254,3 +270,64 @@ This change:
 - Allows the form to be submitted properly even when JavaScript is disabled.
 
 ---------------------------------------
+### As a developer I'd like to be able to use util-taglib without needing to use the same javax.servlet.jsp impl as portal-service
+- **Date:** 2014-Jun-19
+- **JIRA Ticket:** LPS-47682
+
+#### What changed?
+Several API in portal-service.jar contained references to the javax.servlet.jsp package. This forced util-taglib which depended on many of those features to be bound to the same jsp impl.
+Due to this, several APIs had breaking changes:
+- LanguageUtil
+- UnicodeLanguageUtil
+- VelocityTaglibImpl
+- ThemeUtil
+- RuntimePageUtil
+- PortletDisplayTemplateUtil
+- DDMXSDUtil
+- PortletResourceBundles
+- ResourceActionsUtil
+- PortalUtil
+
+#### How should I update my code?
+Any invocations of the APIs listed above should replace parameter of PageContext by HttpServletRequest.
+
+#### Why was this change made?
+As stated previously, the use of the javax.servlet.jsp API in portal-service prevented the use of any other JSP impl within plugins (OSGi or otherwise). This limited what Liferay could change with respect to providing its own JSP implementation within OSGi.
+
+---------------------------------------
+
+### Some portlet instances setup may be ignored because they were never meant to be per instance
+- **Date:** 2014-Jun-06
+- **JIRA Ticket:** LPS-43134
+
+#### What changed?
+A few portlets allowed providing a separate setup per portlet instance (in the
+same page or in different pages). However for some of the setup fields, it
+didn't make sense to provide different values per instance and that was creating
+confusion among users. To fix this, those fields have been removed from the
+portlet instance set up and have been moved to Site Administration.
+
+The upgrade process will take care of making the necessary database changes,
+however if several portlet instances had different configurations only one will 
+be preserved. Check the log generated in the console by the migration process
+to get accurate information on which configuration was chosen.
+
+For instance: if you have configured three bookmarks portlets where the mail 
+configuration is the same you won't have any problem. But in case the three 
+configurations are different, you will have to choose which one to use.
+
+We think this case is rare and a problematic configuration (i.e. highly
+unrecommended) so we don't expect this change to have a relevant negative
+impact.
+
+#### Who is affected?
+Users who have configured more than one portlet of the same type which stores
+configuration at layout level with different settings.
+
+#### How should I update my code?
+The upgrade process will choose one of your configurations and will store it at
+the service level. You will have to review it then and modify it if needed.
+
+#### Why was this change made?
+To unify the configuration of portlets and services and make its management
+easier.

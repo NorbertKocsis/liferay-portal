@@ -65,7 +65,7 @@ if (showLinkTitle) {
 	<c:when test='<%= displayStyle.equals("icon") %>'>
 		<div class="app-view-entry app-view-entry-taglib display-<%= displayStyle %> entry-display-style <%= showCheckbox ? "selectable" : StringPool.BLANK %> <%= cssClass %>" <%= AUIUtil.buildData(data) %> data-draggable="<%= showCheckbox ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-title="<%= HtmlUtil.escapeAttribute(shortTitle) %>">
 			<c:if test="<%= showCheckbox %>">
-				<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(pageContext, "select-x", HtmlUtil.escape(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
+				<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(request, "select-x", HtmlUtil.escape(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
 			</c:if>
 
 			<%
@@ -97,11 +97,11 @@ if (showLinkTitle) {
 					</c:choose>
 
 					<c:if test="<%= shortcut %>">
-						<img alt="<liferay-ui:message key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
+						<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
 					</c:if>
 
 					<c:if test="<%= locked %>">
-						<img alt="<liferay-ui:message key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
+						<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
 					</c:if>
 
 					<c:if test="<%= !folder && ((status != WorkflowConstants.STATUS_ANY) && (status != WorkflowConstants.STATUS_APPROVED)) %>">
@@ -151,11 +151,11 @@ if (showLinkTitle) {
 					</c:choose>
 
 					<c:if test="<%= shortcut %>">
-						<img alt="<liferay-ui:message key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
+						<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="shortcut" />" class="shortcut-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_link.png" />
 					</c:if>
 
 					<c:if test="<%= locked %>">
-						<img alt="<liferay-ui:message key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
+						<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="locked" />" class="locked-icon" src="<%= themeDisplay.getPathThemeImages() %>/file_system/large/overlay_lock.png" />
 					</c:if>
 
 					<c:if test="<%= !folder && (status != WorkflowConstants.STATUS_ANY) && (status != WorkflowConstants.STATUS_APPROVED) %>">
@@ -360,7 +360,7 @@ if (showLinkTitle) {
 			<liferay-util:include page="<%= actionJsp %>" />
 
 			<c:if test="<%= showCheckbox %>">
-				<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(pageContext, "select-x", HtmlUtil.escape(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
+				<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(request, "select-x", HtmlUtil.escape(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
 			</c:if>
 		</div>
 	</c:when>

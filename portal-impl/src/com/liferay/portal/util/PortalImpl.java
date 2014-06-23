@@ -284,7 +284,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.PageContext;
 
 import org.apache.struts.Globals;
 
@@ -2555,13 +2554,12 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
-	public String getFirstPageLayoutTypes(PageContext pageContext) {
+	public String getFirstPageLayoutTypes(HttpServletRequest request) {
 		StringBundler sb = new StringBundler();
 
 		for (String type : PropsValues.LAYOUT_TYPES) {
 			if (isLayoutFirstPageable(type)) {
-				sb.append(
-					LanguageUtil.get(pageContext, "layout.types." + type));
+				sb.append(LanguageUtil.get(request, "layout.types." + type));
 				sb.append(StringPool.COMMA);
 				sb.append(StringPool.SPACE);
 			}
@@ -4333,7 +4331,7 @@ public class PortalImpl implements Portal {
 	@Override
 	public PortletConfig getPortletConfig(
 			long companyId, String portletId, ServletContext servletContext)
-		throws PortletException, SystemException {
+		throws PortletException {
 
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
 			companyId, portletId);
@@ -8192,9 +8190,13 @@ public class PortalImpl implements Portal {
 	}
 
 	protected String getValidPortalDomain(long companyId, String domain) {
-		for (String validVirtualHost : PropsValues.VIRTUAL_HOSTS_VALID_HOSTS) {
-			if (StringUtil.equalsIgnoreCase(domain, validVirtualHost)) {
-				return validVirtualHost;
+		for (String virtualHost : PropsValues.VIRTUAL_HOSTS_VALID_HOSTS) {
+			if (StringUtil.equalsIgnoreCase(domain, virtualHost) ||
+				StringUtil.wildcardMatches(
+					domain, virtualHost, CharPool.QUESTION, CharPool.STAR,
+					CharPool.PERCENT, false)) {
+
+				return domain;
 			}
 		}
 
@@ -8217,8 +8219,8 @@ public class PortalImpl implements Portal {
 		if (_log.isWarnEnabled()) {
 			_log.warn(
 				"Set the property \"" + PropsKeys.VIRTUAL_HOSTS_VALID_HOSTS +
-					"\" in portal.properties to allow " + domain +
-						" as a domain");
+					"\" in portal.properties to allow \"" + domain +
+						"\" as a domain");
 		}
 
 		try {

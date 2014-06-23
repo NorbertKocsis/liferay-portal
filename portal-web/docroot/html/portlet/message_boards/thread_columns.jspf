@@ -22,10 +22,10 @@
 >
 	<c:choose>
 		<c:when test="<%= MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()) %>">
-			<liferay-ui:message key="resolved" />
+			<liferay-ui:message escapeAttribute="<%= true %>" key="resolved" />
 		</c:when>
 		<c:when test="<%= thread.isQuestion() %>">
-			<liferay-ui:message key="waiting-for-an-answer" />
+			<liferay-ui:message escapeAttribute="<%= true %>" key="waiting-for-an-answer" />
 		</c:when>
 	</c:choose>
 </liferay-ui:search-container-column-text>
@@ -33,7 +33,7 @@
 <liferay-ui:search-container-column-text
 	href="<%= rowURL %>"
 	name="started-by"
-	value='<%= message.isAnonymous() ? LanguageUtil.get(pageContext, "anonymous") : HtmlUtil.escape(PortalUtil.getUserName(message.getUserId(), message.getUserName())) %>'
+	value='<%= message.isAnonymous() ? LanguageUtil.get(request, "anonymous") : HtmlUtil.escape(PortalUtil.getUserName(message.getUserId(), message.getUserName())) %>'
 />
 
 <liferay-ui:search-container-column-text

@@ -15,50 +15,15 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.util.PortletKeys;
-import com.liferay.portlet.messageboards.util.MBConstants;
-import com.liferay.portlet.shopping.util.ShoppingConstants;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Sergio González
+ * @author Iván Zaera
  */
 public class UpgradePortletSettings extends UpgradeProcess {
 
-	public UpgradePortletSettings() {
-		_serviceNames.put(PortletKeys.MESSAGE_BOARDS, MBConstants.SERVICE_NAME);
-		_serviceNames.put(PortletKeys.SHOPPING, ShoppingConstants.SERVICE_NAME);
-	}
-
 	@Override
-	protected void doUpgrade() throws Exception {
-		for (Map.Entry<String, String> entry : _serviceNames.entrySet()) {
-			String portletId = entry.getKey();
-			String serviceName = entry.getValue();
-
-			upgradePortletSettings(portletId, serviceName);
-		}
+	protected void doUpgrade() {
 	}
-
-	protected void upgradePortletSettings(String portletId, String serviceName)
-		throws Exception {
-
-		StringBundler sb = new StringBundler(7);
-
-		sb.append("update PortletPreferences set portletId = '");
-		sb.append(serviceName);
-		sb.append("' where ownerType = ");
-		sb.append(PortletKeys.PREFS_OWNER_TYPE_GROUP);
-		sb.append(" and portletId like '");
-		sb.append(portletId);
-		sb.append("'");
-
-		runSQL(sb.toString());
-	}
-
-	private Map<String, String> _serviceNames = new HashMap<String, String>();
 
 }

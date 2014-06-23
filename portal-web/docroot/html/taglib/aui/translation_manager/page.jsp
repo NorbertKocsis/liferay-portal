@@ -26,7 +26,7 @@
 			Locale defaultLocale = LocaleUtil.fromLanguageId(defaultLanguageId);
 			%>
 
-			<img alt="<%= defaultLocale.getDisplayName(locale) %>" src='<%= HtmlUtil.escapeAttribute(themeDisplay.getPathThemeImages() + "/language/" + defaultLanguageId + ".png") %>' />
+			<img alt="<%= HtmlUtil.escapeAttribute(defaultLocale.getDisplayName(locale)) %>" src='<%= HtmlUtil.escapeAttribute(themeDisplay.getPathThemeImages() + "/language/" + defaultLanguageId + ".png") %>' />
 
 			<%= defaultLocale.getDisplayName(locale) %>
 		</span>
@@ -54,7 +54,7 @@
 				cssClass="lfr-translation-manager-icon-menu"
 				direction="down"
 				icon="../aui/plus"
-				message='<%= LanguageUtil.get(pageContext, "add-translation") %>'
+				message='<%= LanguageUtil.get(request, "add-translation") %>'
 				showArrow="<%= true %>"
 				showWhenSingleIcon="<%= true %>"
 			>
@@ -96,7 +96,7 @@
 						%>
 
 							<span class="lfr-translation-manager-translation" locale="<%= availableLocales[i] %>">
-								<img alt="<%= availableLocales[i].getDisplayName(locale) %>" src="<%= themeDisplay.getPathThemeImages() %>/language/<%= LocaleUtil.toLanguageId(availableLocales[i]) %>.png">
+								<img alt="<%= HtmlUtil.escapeAttribute(availableLocales[i].getDisplayName(locale)) %>" src="<%= themeDisplay.getPathThemeImages() %>/language/<%= LocaleUtil.toLanguageId(availableLocales[i]) %>.png">
 
 								<%= availableLocales[i].getDisplayName(locale) %>
 

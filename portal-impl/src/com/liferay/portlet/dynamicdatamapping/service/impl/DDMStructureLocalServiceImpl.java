@@ -17,7 +17,6 @@ package com.liferay.portlet.dynamicdatamapping.service.impl;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -25,7 +24,6 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -48,10 +46,10 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
+import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.StructureDuplicateElementException;
 import com.liferay.portlet.dynamicdatamapping.StructureDuplicateStructureKeyException;
 import com.liferay.portlet.dynamicdatamapping.StructureNameException;
-import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -114,7 +112,7 @@ public class DDMStructureLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  nameMap the structure's locales and localized names
 	 * @param  descriptionMap the structure's locales and localized descriptions
-	 * @param  xsd the structure's XML schema definition
+	 * @param  definition the structure's XML schema definition
 	 * @param  storageType the structure's storage type. It can be "xml" or
 	 *         "expando". For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
@@ -132,8 +130,8 @@ public class DDMStructureLocalServiceImpl
 	public DDMStructure addStructure(
 			long userId, long groupId, long parentStructureId, long classNameId,
 			String structureKey, Map<Locale, String> nameMap,
-			Map<Locale, String> descriptionMap, String xsd, String storageType,
-			int type, ServiceContext serviceContext)
+			Map<Locale, String> descriptionMap, String definition,
+			String storageType, int type, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Structure
@@ -148,18 +146,18 @@ public class DDMStructureLocalServiceImpl
 		}
 
 		try {
-			xsd = DDMXMLUtil.validateXML(xsd);
-			xsd = DDMXMLUtil.formatXML(xsd);
+			definition = DDMXMLUtil.validateXML(definition);
+			definition = DDMXMLUtil.formatXML(definition);
 		}
 		catch (Exception e) {
-			throw new StructureXsdException();
+			throw new StructureDefinitionException();
 		}
 
 		Date now = new Date();
 
 		validate(
 			groupId, parentStructureId, classNameId, structureKey, nameMap,
-			xsd);
+			definition);
 
 		long structureId = counterLocalService.increment();
 
@@ -177,7 +175,7 @@ public class DDMStructureLocalServiceImpl
 		structure.setStructureKey(structureKey);
 		structure.setNameMap(nameMap);
 		structure.setDescriptionMap(descriptionMap);
-		structure.setXsd(xsd);
+		structure.setDefinition(definition);
 		structure.setStorageType(storageType);
 		structure.setType(type);
 
@@ -212,7 +210,7 @@ public class DDMStructureLocalServiceImpl
 	 *         related model
 	 * @param  nameMap the structure's locales and localized names
 	 * @param  descriptionMap the structure's locales and localized descriptions
-	 * @param  xsd the structure's XML schema definition
+	 * @param  definition the structure's XML schema definition
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         UUID, creation date, modification date, guest permissions, and
 	 *         group permissions for the structure.
@@ -225,12 +223,12 @@ public class DDMStructureLocalServiceImpl
 	public DDMStructure addStructure(
 			long userId, long groupId, long classNameId,
 			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
-			String xsd, ServiceContext serviceContext)
+			String definition, ServiceContext serviceContext)
 		throws PortalException {
 
 		return addStructure(
 			userId, groupId, DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
-			classNameId, null, nameMap, descriptionMap, xsd,
+			classNameId, null, nameMap, descriptionMap, definition,
 			PropsValues.DYNAMIC_DATA_LISTS_STORAGE_TYPE,
 			DDMStructureConstants.TYPE_DEFAULT, serviceContext);
 	}
@@ -249,7 +247,7 @@ public class DDMStructureLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  nameMap the structure's locales and localized names
 	 * @param  descriptionMap the structure's locales and localized descriptions
-	 * @param  xsd the structure's XML schema definition
+	 * @param  definition the structure's XML schema definition
 	 * @param  storageType the structure's storage type. It can be "xml" or
 	 *         "expando". For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
@@ -267,8 +265,8 @@ public class DDMStructureLocalServiceImpl
 	public DDMStructure addStructure(
 			long userId, long groupId, String parentStructureKey,
 			long classNameId, String structureKey, Map<Locale, String> nameMap,
-			Map<Locale, String> descriptionMap, String xsd, String storageType,
-			int type, ServiceContext serviceContext)
+			Map<Locale, String> descriptionMap, String definition,
+			String storageType, int type, ServiceContext serviceContext)
 		throws PortalException {
 
 		DDMStructure parentStructure = fetchStructure(
@@ -283,7 +281,8 @@ public class DDMStructureLocalServiceImpl
 
 		return addStructure(
 			userId, groupId, parentStructureId, classNameId, structureKey,
-			nameMap, descriptionMap, xsd, storageType, type, serviceContext);
+			nameMap, descriptionMap, definition, storageType, type,
+			serviceContext);
 	}
 
 	/**
@@ -355,8 +354,8 @@ public class DDMStructureLocalServiceImpl
 		return addStructure(
 			userId, structure.getGroupId(), structure.getParentStructureId(),
 			structure.getClassNameId(), null, nameMap, descriptionMap,
-			structure.getXsd(), structure.getStorageType(), structure.getType(),
-			serviceContext);
+			structure.getDefinition(), structure.getStorageType(),
+			structure.getType(), serviceContext);
 	}
 
 	@Override
@@ -370,7 +369,7 @@ public class DDMStructureLocalServiceImpl
 		return addStructure(
 			userId, structure.getGroupId(), structure.getParentStructureId(),
 			structure.getClassNameId(), null, structure.getNameMap(),
-			structure.getDescriptionMap(), structure.getXsd(),
+			structure.getDescriptionMap(), structure.getDefinition(),
 			structure.getStorageType(), structure.getType(), serviceContext);
 	}
 
@@ -1217,6 +1216,32 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
+	 * Updates the structure matching the structure ID, replacing its XSD with a
+	 * new one.
+	 *
+	 * @param  structureId the primary key of the structure
+	 * @param  definition the structure's new XML schema definition
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         structure's modification date.
+	 * @return the updated structure
+	 * @throws PortalException if a matching structure could not be found, if
+	 *         the XSD was not well-formed, or if a portal exception occurred
+	 */
+	@Override
+	public DDMStructure updateDefinition(
+			long structureId, String definition, ServiceContext serviceContext)
+		throws PortalException {
+
+		DDMStructure structure = ddmStructurePersistence.findByPrimaryKey(
+			structureId);
+
+		return doUpdateStructure(
+			structure.getParentStructureId(), structure.getNameMap(),
+			structure.getDescriptionMap(), definition, serviceContext,
+			structure);
+	}
+
+	/**
 	 * Updates the structure matching the class name ID, structure key, and
 	 * group, replacing its old parent structure, name map, description map, and
 	 * XSD with new ones.
@@ -1229,7 +1254,7 @@ public class DDMStructureLocalServiceImpl
 	 * @param  nameMap the structure's new locales and localized names
 	 * @param  descriptionMap the structure's new locales and localized
 	 *         description
-	 * @param  xsd the structure's new XML schema definition
+	 * @param  definition the structure's new XML schema definition
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         structure's modification date.
 	 * @return the updated structure
@@ -1240,7 +1265,7 @@ public class DDMStructureLocalServiceImpl
 	public DDMStructure updateStructure(
 			long groupId, long parentStructureId, long classNameId,
 			String structureKey, Map<Locale, String> nameMap,
-			Map<Locale, String> descriptionMap, String xsd,
+			Map<Locale, String> descriptionMap, String definition,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -1250,8 +1275,8 @@ public class DDMStructureLocalServiceImpl
 			groupId, classNameId, structureKey);
 
 		return doUpdateStructure(
-			parentStructureId, nameMap, descriptionMap, xsd, serviceContext,
-			structure);
+			parentStructureId, nameMap, descriptionMap, definition,
+			serviceContext, structure);
 	}
 
 	/**
@@ -1263,7 +1288,7 @@ public class DDMStructureLocalServiceImpl
 	 * @param  nameMap the structure's new locales and localized names
 	 * @param  descriptionMap the structure's new locales and localized
 	 *         descriptions
-	 * @param  xsd the structure's new XML schema definition
+	 * @param  definition the structure's new XML schema definition
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         structure's modification date.
 	 * @return the updated structure
@@ -1274,121 +1299,26 @@ public class DDMStructureLocalServiceImpl
 	public DDMStructure updateStructure(
 			long structureId, long parentStructureId,
 			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
-			String xsd, ServiceContext serviceContext)
+			String definition, ServiceContext serviceContext)
 		throws PortalException {
 
 		DDMStructure structure = ddmStructurePersistence.findByPrimaryKey(
 			structureId);
 
 		return doUpdateStructure(
-			parentStructureId, nameMap, descriptionMap, xsd, serviceContext,
-			structure);
-	}
-
-	/**
-	 * Updates the structure matching the structure ID, replacing its XSD with a
-	 * new one.
-	 *
-	 * @param  structureId the primary key of the structure
-	 * @param  xsd the structure's new XML schema definition
-	 * @param  serviceContext the service context to be applied. Can set the
-	 *         structure's modification date.
-	 * @return the updated structure
-	 * @throws PortalException if a matching structure could not be found, if
-	 *         the XSD was not well-formed, or if a portal exception occurred
-	 */
-	@Override
-	public DDMStructure updateXSD(
-			long structureId, String xsd, ServiceContext serviceContext)
-		throws PortalException {
-
-		DDMStructure structure = ddmStructurePersistence.findByPrimaryKey(
-			structureId);
-
-		return doUpdateStructure(
-			structure.getParentStructureId(), structure.getNameMap(),
-			structure.getDescriptionMap(), xsd, serviceContext, structure);
-	}
-
-	/**
-	 * Updates the structure matching the structure ID, replacing the metadata
-	 * entry of the named field.
-	 *
-	 * @param  structureId the primary key of the structure
-	 * @param  fieldName the name of the field whose metadata to update
-	 * @param  metadataEntryName the metadata entry's name
-	 * @param  metadataEntryValue the metadata entry's value
-	 * @param  serviceContext the service context to be applied. Can set the
-	 *         structure's modification date.
-	 * @throws PortalException if a matching structure could not be found, if
-	 *         the XSD was not well-formed, or if a portal exception occurred
-	 */
-	@Override
-	public void updateXSDFieldMetadata(
-			long structureId, String fieldName, String metadataEntryName,
-			String metadataEntryValue, ServiceContext serviceContext)
-		throws PortalException {
-
-		DDMStructure ddmStructure = fetchDDMStructure(structureId);
-
-		if (ddmStructure == null) {
-			return;
-		}
-
-		String xsd = ddmStructure.getXsd();
-
-		try {
-			Document document = SAXReaderUtil.read(xsd);
-
-			Element rootElement = document.getRootElement();
-
-			List<Element> dynamicElementElements = rootElement.elements(
-				"dynamic-element");
-
-			for (Element dynamicElementElement : dynamicElementElements) {
-				String dynamicElementElementFieldName = GetterUtil.getString(
-					dynamicElementElement.attributeValue("name"));
-
-				if (!dynamicElementElementFieldName.equals(fieldName)) {
-					continue;
-				}
-
-				List<Element> metadataElements = dynamicElementElement.elements(
-					"meta-data");
-
-				for (Element metadataElement : metadataElements) {
-					List<Element> metadataEntryElements =
-						metadataElement.elements();
-
-					for (Element metadataEntryElement : metadataEntryElements) {
-						String metadataEntryElementName = GetterUtil.getString(
-							metadataEntryElement.attributeValue("name"));
-
-						if (metadataEntryElementName.equals(
-								metadataEntryName)) {
-
-							metadataEntryElement.setText(metadataEntryValue);
-						}
-					}
-				}
-			}
-
-			updateXSD(structureId, document.asXML(), serviceContext);
-		}
-		catch (DocumentException de) {
-			throw new SystemException(de);
-		}
+			parentStructureId, nameMap, descriptionMap, definition,
+			serviceContext, structure);
 	}
 
 	protected void appendNewStructureRequiredFields(
 		DDMStructure structure, Document templateDocument) {
 
-		String xsd = structure.getXsd();
+		String definition = structure.getDefinition();
 
 		Document structureDocument = null;
 
 		try {
-			structureDocument = SAXReaderUtil.read(xsd);
+			structureDocument = SAXReaderUtil.read(definition);
 		}
 		catch (DocumentException de) {
 			if (_log.isWarnEnabled()) {
@@ -1424,27 +1354,27 @@ public class DDMStructureLocalServiceImpl
 
 	protected DDMStructure doUpdateStructure(
 			long parentStructureId, Map<Locale, String> nameMap,
-			Map<Locale, String> descriptionMap, String xsd,
+			Map<Locale, String> descriptionMap, String definition,
 			ServiceContext serviceContext, DDMStructure structure)
 		throws PortalException {
 
 		try {
-			xsd = DDMXMLUtil.validateXML(xsd);
-			xsd = DDMXMLUtil.formatXML(xsd);
+			definition = DDMXMLUtil.validateXML(definition);
+			definition = DDMXMLUtil.formatXML(definition);
 		}
 		catch (Exception e) {
-			throw new StructureXsdException();
+			throw new StructureDefinitionException();
 		}
 
 		DDMForm parentDDMForm = getParentDDMForm(parentStructureId);
 
-		validate(nameMap, parentDDMForm, xsd);
+		validate(nameMap, parentDDMForm, definition);
 
 		structure.setModifiedDate(serviceContext.getModifiedDate(null));
 		structure.setParentStructureId(parentStructureId);
 		structure.setNameMap(nameMap);
 		structure.setDescriptionMap(descriptionMap);
-		structure.setXsd(xsd);
+		structure.setDefinition(definition);
 
 		ddmStructurePersistence.update(structure);
 
@@ -1518,7 +1448,7 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	protected DDMForm getParentDDMForm(long parentStructureId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DDMStructure parentStructure =
 			ddmStructurePersistence.fetchByPrimaryKey(parentStructureId);
@@ -1576,7 +1506,7 @@ public class DDMStructureLocalServiceImpl
 				script = DDMXMLUtil.formatXML(templateDocument.asXML());
 			}
 			catch (Exception e) {
-				throw new StructureXsdException();
+				throw new StructureDefinitionException();
 			}
 
 			template.setScript(script);
@@ -1660,7 +1590,7 @@ public class DDMStructureLocalServiceImpl
 				element.attributeValue("name"));
 
 			if (name.startsWith(DDMStructureConstants.XSD_NAME_RESERVED)) {
-				throw new StructureXsdException();
+				throw new StructureDefinitionException();
 			}
 
 			if (elementNames.contains(name)) {
@@ -1673,7 +1603,7 @@ public class DDMStructureLocalServiceImpl
 
 	protected void validate(
 			long groupId, long parentStructureId, long classNameId,
-			String structureKey, Map<Locale, String> nameMap, String xsd)
+			String structureKey, Map<Locale, String> nameMap, String definition)
 		throws PortalException {
 
 		structureKey = getStructureKey(structureKey);
@@ -1692,15 +1622,16 @@ public class DDMStructureLocalServiceImpl
 
 		DDMForm parentDDMForm = getParentDDMForm(parentStructureId);
 
-		validate(nameMap, parentDDMForm, xsd);
+		validate(nameMap, parentDDMForm, definition);
 	}
 
 	protected void validate(
-			Map<Locale, String> nameMap, DDMForm parentDDMForm, String childXsd)
+			Map<Locale, String> nameMap, DDMForm parentDDMForm,
+			String childDefinition)
 		throws PortalException {
 
 		try {
-			Document document = SAXReaderUtil.read(childXsd);
+			Document document = SAXReaderUtil.read(childDefinition);
 
 			Element rootElement = document.getRootElement();
 
@@ -1724,11 +1655,11 @@ public class DDMStructureLocalServiceImpl
 		catch (StructureNameException sne) {
 			throw sne;
 		}
-		catch (StructureXsdException sxe) {
-			throw sxe;
+		catch (StructureDefinitionException sde) {
+			throw sde;
 		}
 		catch (Exception e) {
-			throw new StructureXsdException();
+			throw new StructureDefinitionException();
 		}
 	}
 

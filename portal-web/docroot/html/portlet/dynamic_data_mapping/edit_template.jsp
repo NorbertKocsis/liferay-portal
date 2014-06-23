@@ -160,7 +160,7 @@ if (Validator.isNotNull(structureAvailableFields)) {
 						for (String curLangType : ddmDisplay.getTemplateLanguageTypes()) {
 							StringBundler sb = new StringBundler(6);
 
-							sb.append(LanguageUtil.get(pageContext, curLangType + "[stands-for]"));
+							sb.append(LanguageUtil.get(request, curLangType + "[stands-for]"));
 							sb.append(StringPool.SPACE);
 							sb.append(StringPool.OPEN_PARENTHESIS);
 							sb.append(StringPool.PERIOD);
@@ -206,7 +206,7 @@ if (Validator.isNotNull(structureAvailableFields)) {
 								<aui:row>
 									<c:if test="<%= smallImage && (template != null) %>">
 										<aui:col width="<%= 50 %>">
-											<img alt="<liferay-ui:message key="preview" />" class="lfr-ddm-small-image-preview" src="<%= Validator.isNotNull(template.getSmallImageURL()) ? HtmlUtil.escapeHREF(template.getSmallImageURL()) : themeDisplay.getPathImage() + "/template?img_id=" + template.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(template.getSmallImageId()) %>" />
+											<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="preview" />" class="lfr-ddm-small-image-preview" src='<%= Validator.isNotNull(template.getSmallImageURL()) ? HtmlUtil.escapeHREF(template.getSmallImageURL()) : themeDisplay.getPathImage() + "/template?img_id=" + template.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(template.getSmallImageId()) %>' />
 										</aui:col>
 									</c:if>
 
@@ -394,10 +394,10 @@ if (Validator.isNotNull(structureAvailableFields)) {
 					refererPortletName: '<%= PortletKeys.JOURNAL %>',
 					showAncestorScopes: true,
 					struts_action: '/dynamic_data_mapping/select_structure',
-					title: '<%= UnicodeLanguageUtil.get(pageContext, "structures") %>'
+					title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'
 				},
 				function(event) {
-					if (confirm('<%= UnicodeLanguageUtil.get(pageContext, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm.<portlet:namespace />classPK.value != event.ddmstructureid)) {
+					if (confirm('<%= UnicodeLanguageUtil.get(request, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm.<portlet:namespace />classPK.value != event.ddmstructureid)) {
 						document.<portlet:namespace />fm.<portlet:namespace />classPK.value = event.ddmstructureid;
 
 						Liferay.fire('<portlet:namespace />refreshEditor');
@@ -428,9 +428,9 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	String taglibOnClick = "Liferay.fire('" + liferayPortletResponse.getNamespace() + "saveTemplate');";
 	%>
 
-	<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= LanguageUtil.get(pageContext, "save") %>' />
+	<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= LanguageUtil.get(request, "save") %>' />
 
-	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(pageContext, "save-and-continue") %>' />
+	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(request, "save-and-continue") %>' />
 
 	<aui:button href="<%= redirect %>" type="cancel" />
 </aui:button-row>

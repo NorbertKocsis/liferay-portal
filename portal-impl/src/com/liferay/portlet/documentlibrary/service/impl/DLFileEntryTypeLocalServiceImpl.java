@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -44,7 +43,7 @@ import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.base.DLFileEntryTypeLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
-import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
+import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 
@@ -583,7 +582,7 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	protected long getFileEntryTypesPrimaryFolderId(long folderId)
-		throws NoSuchFolderException, SystemException {
+		throws NoSuchFolderException {
 
 		while (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			DLFolder dlFolder = dlFolderPersistence.findByPrimaryKey(folderId);
@@ -608,15 +607,15 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		String ddmStructureKey = DLUtil.getDDMStructureKey(fileEntryTypeUuid);
 
-		String xsd = ParamUtil.getString(serviceContext, "xsd");
+		String definition = ParamUtil.getString(serviceContext, "definition");
 
 		DDMStructure ddmStructure = ddmStructureLocalService.fetchStructure(
 			groupId,
 			classNameLocalService.getClassNameId(DLFileEntryMetadata.class),
 			ddmStructureKey);
 
-		if ((ddmStructure != null) && Validator.isNull(xsd)) {
-			xsd = ddmStructure.getXsd();
+		if ((ddmStructure != null) && Validator.isNull(definition)) {
+			definition = ddmStructure.getDefinition();
 		}
 
 		try {
@@ -626,19 +625,19 @@ public class DLFileEntryTypeLocalServiceImpl
 					DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
 					classNameLocalService.getClassNameId(
 						DLFileEntryMetadata.class),
-					ddmStructureKey, nameMap, descriptionMap, xsd, "xml",
+					ddmStructureKey, nameMap, descriptionMap, definition, "xml",
 					DDMStructureConstants.TYPE_AUTO, serviceContext);
 			}
 			else {
 				ddmStructure = ddmStructureLocalService.updateStructure(
 					ddmStructure.getStructureId(),
 					ddmStructure.getParentStructureId(), nameMap,
-					descriptionMap, xsd, serviceContext);
+					descriptionMap, definition, serviceContext);
 			}
 
 			return ddmStructure.getStructureId();
 		}
-		catch (StructureXsdException sxe) {
+		catch (StructureDefinitionException sde) {
 			if (ddmStructure != null) {
 				ddmStructureLocalService.deleteStructure(
 					ddmStructure.getStructureId());

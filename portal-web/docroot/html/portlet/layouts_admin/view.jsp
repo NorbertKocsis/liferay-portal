@@ -90,7 +90,7 @@ SitesUtil.addPortletBreadcrumbEntries(group, pagesName, redirectURL, request, re
 		/>
 
 		<%
-		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, TextFormatter.format(tabs1, TextFormatter.O)), redirectURL.toString());
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, TextFormatter.format(tabs1, TextFormatter.O)), redirectURL.toString());
 		%>
 
 	</c:when>
@@ -167,7 +167,7 @@ SitesUtil.addPortletBreadcrumbEntries(group, pagesName, redirectURL, request, re
 						</c:when>
 					</c:choose>
 
-					<liferay-staging:menu cssClass="manage-pages-branch-menu" extended="<%= true %>" groupId="<%= groupId %>" icon="/common/tool.png" message="" privateLayout="<%= privateLayout %>" selPlid="<%= selPlid %>" showManageBranches="<%= true %>"  />
+					<liferay-staging:menu cssClass="manage-pages-branch-menu" extended="<%= true %>" icon="/common/tool.png" message="" selPlid="<%= selPlid %>" showManageBranches="<%= true %>"  />
 				</c:if>
 
 				<liferay-util:include page="/html/portlet/layouts_admin/tree_js.jsp">

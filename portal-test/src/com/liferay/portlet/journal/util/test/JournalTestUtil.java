@@ -125,11 +125,11 @@ public class JournalTestUtil {
 		String content = DDMStructureTestUtil.getSampleStructuredContent(
 			contentMap, LocaleUtil.toLanguageId(defaultLocale));
 
-		String xsd = DDMStructureTestUtil.getSampleStructureXSD(
+		String definition = DDMStructureTestUtil.getSampleStructureDefinition(
 			_locales, defaultLocale);
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			groupId, JournalArticle.class.getName(), xsd, defaultLocale);
+			groupId, JournalArticle.class.getName(), definition, defaultLocale);
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
 			groupId, ddmStructure.getStructureId());
@@ -161,6 +161,15 @@ public class JournalTestUtil {
 			}
 		}
 
+		Calendar displayCal = CalendarFactoryUtil.getCalendar(
+			TestPropsValues.getUser().getTimeZone());
+
+		int displayDateDay = displayCal.get(Calendar.DATE);
+		int displayDateMonth = displayCal.get(Calendar.MONTH);
+		int displayDateYear = displayCal.get(Calendar.YEAR);
+		int displayDateHour = displayCal.get(Calendar.HOUR);
+		int displayDateMinute = displayCal.get(Calendar.MINUTE);
+
 		if (workflowEnabled) {
 			serviceContext = (ServiceContext)serviceContext.clone();
 
@@ -179,7 +188,8 @@ public class JournalTestUtil {
 			StringPool.BLANK, true, JournalArticleConstants.VERSION_DEFAULT,
 			titleMap, descriptionMap, content, "general",
 			ddmStructure.getStructureKey(), ddmTemplate.getTemplateKey(),
-			layoutUuid, 1, 1, 1965, 0, 0, expirationDateMonth,
+			layoutUuid, displayDateMonth, displayDateDay, displayDateYear,
+			displayDateHour, displayDateMinute, expirationDateMonth,
 			expirationDateDay, expirationDateYear, expirationDateHour,
 			expirationDateMinute, neverExpire, 0, 0, 0, 0, 0, true, true, false,
 			null, null, null, null, serviceContext);

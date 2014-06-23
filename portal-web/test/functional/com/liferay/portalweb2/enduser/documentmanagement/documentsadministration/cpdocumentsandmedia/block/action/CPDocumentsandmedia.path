@@ -13,7 +13,6 @@
 	<td></td>
 	<td>CPDocumentsandmedia</td>
 </tr>
-<!---->
 <tr>
 	<td>PORTLET_TITLE</td>
 	<td>//h2[@id='cpPortletTitle']/span[@class='portlet-title-text']</td>
@@ -31,7 +30,7 @@
 </tr>
 <tr>
 	<td>TOOLBAR_SELECT_ALL_ROWS_CHECKBOX</td>
-	<td>//input[@id='_199_allRowIdsCheckbox']</td>
+	<td>//input[contains(@id,'allRowIds')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -378,7 +377,7 @@
 </tr>
 <tr>
 	<td>DOCUMENT_CONTAINER_DOCUMENT_CHECKBOX</td>
-	<td>//div[contains(@id,'entriesContainer')]//div[contains(.,'${key_dmDocumentTitle}')]/input[contains(@name,'_199_rowIdsFileEntryCheckbox')]</td>
+	<td>//div[contains(@id,'entriesContainer')]//div[contains(.,'${key_dmDocumentTitle}')]/input[contains(@name,'_199_rowIdsFileEntry')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -404,7 +403,7 @@
 </tr>
 <tr>
 	<td>DOCUMENT_CONTAINER_FOLDER_CHECKBOX</td>
-	<td>//div[contains(@id,'entriesContainer')]//div[contains(.,'${key_dmFolderName}')]/input[contains(@name,'_199_rowIdsFolderCheckbox')]</td>
+	<td>//div[contains(@id,'entriesContainer')]//div[contains(.,'${key_dmFolderName}')]/input[contains(@name,'_199_rowIdsFolder')]</td>
 	<td></td>
 </tr>
 <tr>

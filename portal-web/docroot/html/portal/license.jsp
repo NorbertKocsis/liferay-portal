@@ -362,7 +362,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 
 					<div id="node_<%= clusterNode.getClusterNodeId() %>_serverInfo">
 						<div style="text-align: center;">
-							<img alt="<liferay-ui:message key="loading" />" src="<%= themeDisplay.getPathThemeImages() %>/aui/loading_indicator.gif" />
+							<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="loading" />" src="<%= themeDisplay.getPathThemeImages() %>/aui/loading_indicator.gif" />
 						</div>
 					</div>
 				</td>
@@ -398,7 +398,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 
 					<div id="node_<%= clusterNode.getClusterNodeId() %>_licenseProperties">
 						<div style="text-align: center;">
-							<img alt="<liferay-ui:message key="loading" />" src="<%= themeDisplay.getPathThemeImages() %>/aui/loading_indicator.gif" />
+							<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="loading" />" src="<%= themeDisplay.getPathThemeImages() %>/aui/loading_indicator.gif" />
 						</div>
 					</div>
 				</td>
@@ -617,7 +617,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 				for (Map.Entry<String, String> entry : orderProducts.entrySet()) {
 					String key = entry.getKey();
 
-					String licensesLeft = LanguageUtil.get(pageContext, entry.getValue());
+					String licensesLeft = LanguageUtil.get(request, entry.getValue());
 				%>
 
 					<c:choose>

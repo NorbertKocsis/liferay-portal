@@ -98,12 +98,12 @@ import com.liferay.portlet.asset.model.AssetLinkConstants;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldNameException;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException;
-import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
+import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
-import com.liferay.portlet.dynamicdatamapping.storage.FieldConstants;
+import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
 import com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil;
@@ -1796,7 +1796,7 @@ public class JournalArticleLocalServiceImpl
 			JournalArticle article, String ddmTemplateKey, String viewMode,
 			String languageId, int page,
 			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return getArticleDisplay(
 			article, ddmTemplateKey, viewMode, languageId, page,
@@ -5440,7 +5440,7 @@ public class JournalArticleLocalServiceImpl
 		try {
 			checkStructure(article, ddmStructure);
 		}
-		catch (StructureXsdException sxsde) {
+		catch (StructureDefinitionException sde) {
 			if (_log.isWarnEnabled()) {
 				StringBundler sb = new StringBundler(8);
 
@@ -5451,7 +5451,7 @@ public class JournalArticleLocalServiceImpl
 				sb.append(", version=");
 				sb.append(article.getVersion());
 				sb.append("} has content that does not match its structure: ");
-				sb.append(sxsde.getMessage());
+				sb.append(sde.getMessage());
 
 				_log.warn(sb.toString());
 			}
@@ -5496,7 +5496,7 @@ public class JournalArticleLocalServiceImpl
 			if (!contentElementType.equals("list") &&
 				!contentElementType.equals("multi-list")) {
 
-				throw new StructureXsdException(fieldName);
+				throw new StructureDefinitionException(fieldName);
 			}
 		}
 	}
@@ -5554,6 +5554,37 @@ public class JournalArticleLocalServiceImpl
 		}
 
 		newArticle.setContent(contentDocument.formattedString());
+	}
+
+	protected Map<String, String> createFieldsValuesMap(String content) {
+		try {
+			Map<String, String> fieldsValuesMap = new HashMap<String, String>();
+
+			Document document = SAXReaderUtil.read(content);
+
+			Element rootElement = document.getRootElement();
+
+			List<Element> elements = rootElement.elements();
+
+			for (Element element : elements) {
+				String fieldName = element.attributeValue(
+					"name", StringPool.BLANK);
+
+				List<Element> dynamicContentElements = element.elements(
+					"dynamic-content");
+
+				for (Element dynamicContentElement : dynamicContentElements) {
+					String value = dynamicContentElement.getText();
+
+					fieldsValuesMap.put(fieldName, value);
+				}
+			}
+
+			return fieldsValuesMap;
+		}
+		catch (DocumentException de) {
+			throw new SystemException(de);
+		}
 	}
 
 	protected void format(
@@ -5825,7 +5856,7 @@ public class JournalArticleLocalServiceImpl
 			String languageId, int page,
 			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay,
 			boolean propagateException)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String content = null;
 
@@ -6506,36 +6537,46 @@ public class JournalArticleLocalServiceImpl
 			serviceContext, workflowContext);
 	}
 
+	protected void updateDDMFormFieldPredefinedValue(
+		DDMFormField ddmFormField, String ddmFormFieldValue) {
+
+		LocalizedValue predefinedValue = ddmFormField.getPredefinedValue();
+
+		for (Locale locale : predefinedValue.getAvailableLocales()) {
+			predefinedValue.addValue(locale, ddmFormFieldValue);
+		}
+	}
+
 	protected void updateDDMStructurePredefinedValues(
-			long ddmStructureId, String content, ServiceContext serviceContext)
-		throws PortalException {
+		long ddmStructureId, String content, ServiceContext serviceContext) {
 
-		try {
-			Document document = SAXReaderUtil.read(content);
+		DDMStructure ddmStructure = ddmStructureLocalService.fetchDDMStructure(
+			ddmStructureId);
 
-			Element rootElement = document.getRootElement();
-
-			List<Element> elements = rootElement.elements();
-
-			for (Element element : elements) {
-				String fieldName = element.attributeValue(
-					"name", StringPool.BLANK);
-
-				List<Element> dynamicContentElements = element.elements(
-					"dynamic-content");
-
-				for (Element dynamicContentElement : dynamicContentElements) {
-					String value = dynamicContentElement.getText();
-
-					ddmStructureLocalService.updateXSDFieldMetadata(
-						ddmStructureId, fieldName,
-						FieldConstants.PREDEFINED_VALUE, value, serviceContext);
-				}
-			}
+		if (ddmStructure == null) {
+			return;
 		}
-		catch (DocumentException de) {
-			throw new SystemException(de);
+
+		DDMForm ddmForm = ddmStructure.getDDMForm();
+
+		Map<String, DDMFormField> ddmFormFieldsMap =
+			ddmForm.getDDMFormFieldsMap(true);
+
+		Map<String, String> fieldsValuesMap = createFieldsValuesMap(content);
+
+		for (Map.Entry<String, String> fieldValue :
+				fieldsValuesMap.entrySet()) {
+
+			String ddmFormFieldName = fieldValue.getKey();
+			String ddmFormFieldValue = fieldValue.getValue();
+
+			updateDDMFormFieldPredefinedValue(
+				ddmFormFieldsMap.get(ddmFormFieldName), ddmFormFieldValue);
 		}
+
+		ddmStructure.updateDDMForm(ddmForm);
+
+		ddmStructureLocalService.updateDDMStructure(ddmStructure);
 	}
 
 	protected void updatePreviousApprovedArticle(JournalArticle article)
