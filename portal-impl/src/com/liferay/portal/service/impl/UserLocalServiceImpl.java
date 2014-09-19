@@ -4599,7 +4599,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		user.setLockoutDate(lockoutDate);
 
 		if (!lockout) {
-			user.setLastFailedLoginDate(lockoutDate);
 			user.setFailedLoginAttempts(0);
 		}
 
