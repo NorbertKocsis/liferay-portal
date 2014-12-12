@@ -292,6 +292,7 @@
 		<reference package-path="com.liferay.portal" entity="Role" />
 		<reference package-path="com.liferay.portal" entity="Shard" />
 		<reference package-path="com.liferay.portal" entity="User" />
+		<reference package-path="com.liferay.portal" entity="UserGroup" />
 		<reference package-path="com.liferay.portal" entity="VirtualHost" />
 	</entity>
 	<entity name="Contact" local-service="true" remote-service="true">
