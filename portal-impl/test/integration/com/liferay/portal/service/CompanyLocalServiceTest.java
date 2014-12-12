@@ -36,6 +36,7 @@ import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.OrganizationConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
+import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.persistence.PasswordPolicyUtil;
 import com.liferay.portal.service.persistence.PortalPreferencesUtil;
@@ -58,9 +59,7 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUt
 import com.liferay.portlet.sites.util.SitesUtil;
 
 import java.io.File;
-
 import java.lang.reflect.Field;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -72,7 +71,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 
@@ -416,6 +414,27 @@ public class CompanyLocalServiceTest {
 			company.getCompanyId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		Assert.assertEquals(0, users.size());
+	}
+
+	@Test
+	public void testDeleteCompanyDeletesUserGroups() throws Exception {
+		Company company = addCompany();
+
+		UserGroupLocalServiceUtil.addUserGroup(
+			company.getDefaultUser().getUserId(), company.getCompanyId(),
+			"testGroup", "description", null);
+
+		List<UserGroup> userGroups = UserGroupLocalServiceUtil.getUserGroups(
+				company.getCompanyId());
+
+		Assert.assertEquals(1, userGroups.size());
+
+		CompanyLocalServiceUtil.deleteCompany(company);
+
+		userGroups = UserGroupLocalServiceUtil.getUserGroups(
+			company.getCompanyId());
+
+		Assert.assertEquals(0, userGroups.size());
 	}
 
 	@Test(expected = NoSuchVirtualHostException.class)
