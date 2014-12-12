@@ -69,6 +69,7 @@ import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Shard;
 import com.liferay.portal.model.User;
+import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.VirtualHost;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.base.CompanyLocalServiceBaseImpl;
@@ -1391,6 +1392,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		User defaultUser = userLocalService.getDefaultUser(companyId);
 
 		userLocalService.deleteUser(defaultUser);
+
+		// UserGroups
+
+		userGroupLocalService.deleteUserGroups(companyId);
 
 		// Virtual host
 
