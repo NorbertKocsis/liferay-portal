@@ -50,6 +50,7 @@ import com.liferay.portal.service.persistence.UserGroupFinder;
 import com.liferay.portal.service.persistence.UserGroupPersistence;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.VirtualHostPersistence;
+import com.liferay.portal.service.persistence.WebDAVPropsPersistence;
 import com.liferay.portal.util.PortalUtil;
 
 import javax.sql.DataSource;
@@ -1237,6 +1238,44 @@ public abstract class CompanyServiceBaseImpl extends BaseServiceImpl
 		this.virtualHostPersistence = virtualHostPersistence;
 	}
 
+	/**
+	 * Returns the web d a v props local service.
+	 *
+	 * @return the web d a v props local service
+	 */
+	public com.liferay.portal.service.WebDAVPropsLocalService getWebDAVPropsLocalService() {
+		return webDAVPropsLocalService;
+	}
+
+	/**
+	 * Sets the web d a v props local service.
+	 *
+	 * @param webDAVPropsLocalService the web d a v props local service
+	 */
+	public void setWebDAVPropsLocalService(
+		com.liferay.portal.service.WebDAVPropsLocalService webDAVPropsLocalService) {
+		this.webDAVPropsLocalService = webDAVPropsLocalService;
+	}
+
+	/**
+	 * Returns the web d a v props persistence.
+	 *
+	 * @return the web d a v props persistence
+	 */
+	public WebDAVPropsPersistence getWebDAVPropsPersistence() {
+		return webDAVPropsPersistence;
+	}
+
+	/**
+	 * Sets the web d a v props persistence.
+	 *
+	 * @param webDAVPropsPersistence the web d a v props persistence
+	 */
+	public void setWebDAVPropsPersistence(
+		WebDAVPropsPersistence webDAVPropsPersistence) {
+		this.webDAVPropsPersistence = webDAVPropsPersistence;
+	}
+
 	public void afterPropertiesSet() {
 	}
 
@@ -1419,5 +1458,9 @@ public abstract class CompanyServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.VirtualHostLocalService virtualHostLocalService;
 	@BeanReference(type = VirtualHostPersistence.class)
 	protected VirtualHostPersistence virtualHostPersistence;
+	@BeanReference(type = com.liferay.portal.service.WebDAVPropsLocalService.class)
+	protected com.liferay.portal.service.WebDAVPropsLocalService webDAVPropsLocalService;
+	@BeanReference(type = WebDAVPropsPersistence.class)
+	protected WebDAVPropsPersistence webDAVPropsPersistence;
 	private String _beanIdentifier;
 }
