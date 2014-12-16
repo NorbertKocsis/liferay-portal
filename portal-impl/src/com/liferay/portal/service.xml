@@ -295,6 +295,7 @@
 		<reference package-path="com.liferay.portal" entity="User" />
 		<reference package-path="com.liferay.portal" entity="UserGroup" />
 		<reference package-path="com.liferay.portal" entity="VirtualHost" />
+		<reference package-path="com.liferay.portal" entity="WebDAVProps" />
 	</entity>
 	<entity name="Contact" local-service="true" remote-service="true">
 
