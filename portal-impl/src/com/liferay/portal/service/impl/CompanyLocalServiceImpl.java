@@ -68,6 +68,7 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Shard;
+import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.VirtualHost;
@@ -86,7 +87,6 @@ import com.liferay.util.EncryptorException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -1364,6 +1364,27 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			Company.class.getName(), company.getCompanyId());
 
 		shardLocalService.deleteShard(shard);
+
+		// Tickets
+
+		ActionableDynamicQuery ticketActionableDynamicQuery =
+			ticketLocalService.getActionableDynamicQuery();
+
+		ticketActionableDynamicQuery.setCompanyId(companyId);
+		ticketActionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+				
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					Ticket ticket = (Ticket)object;
+
+					ticketLocalService.deleteTicket(ticket);
+				}
+			});
+
+		ticketActionableDynamicQuery.performActions();
 
 		// Users
 
