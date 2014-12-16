@@ -21,6 +21,7 @@ import com.liferay.portal.NoSuchAccountException;
 import com.liferay.portal.NoSuchPasswordPolicyException;
 import com.liferay.portal.NoSuchPreferencesException;
 import com.liferay.portal.NoSuchShardException;
+import com.liferay.portal.NoSuchTicketException;
 import com.liferay.portal.NoSuchVirtualHostException;
 import com.liferay.portal.RequiredCompanyException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -35,6 +36,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.OrganizationConstants;
 import com.liferay.portal.model.Role;
+import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
@@ -402,6 +404,19 @@ public class CompanyLocalServiceTest {
 
 		ShardLocalServiceUtil.getShard(
 			Company.class.getName(), company.getCompanyId());
+	}
+
+	@Test(expected = NoSuchTicketException.class)
+	public void testDeleteCompanyDeletesTickets() throws Exception {
+		Company company = addCompany();
+
+		Ticket ticket = TicketLocalServiceUtil.addTicket(
+			company.getCompanyId(), User.class.getName(), 0, 0, null, null,
+			null);
+
+		CompanyLocalServiceUtil.deleteCompany(company);
+
+		TicketLocalServiceUtil.getTicket(ticket.getKey());
 	}
 
 	@Test
