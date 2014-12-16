@@ -23,6 +23,7 @@ import com.liferay.portal.NoSuchPreferencesException;
 import com.liferay.portal.NoSuchShardException;
 import com.liferay.portal.NoSuchTicketException;
 import com.liferay.portal.NoSuchVirtualHostException;
+import com.liferay.portal.NoSuchWebDAVPropsException;
 import com.liferay.portal.RequiredCompanyException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.test.AggregateTestRule;
@@ -39,6 +40,7 @@ import com.liferay.portal.model.Role;
 import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
+import com.liferay.portal.model.WebDAVProps;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.persistence.PasswordPolicyUtil;
 import com.liferay.portal.service.persistence.PortalPreferencesUtil;
@@ -54,6 +56,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.UserTestUtil;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
@@ -459,6 +462,19 @@ public class CompanyLocalServiceTest {
 		CompanyLocalServiceUtil.deleteCompany(company);
 
 		VirtualHostLocalServiceUtil.getVirtualHost(company.getWebId());
+	}
+
+	@Test(expected = NoSuchWebDAVPropsException.class)
+	public void testDeleteCompanyWebDAVProps() throws Exception {
+		Company company = addCompany();
+
+		WebDAVProps webDAVProps = WebDAVPropsLocalServiceUtil.getWebDAVProps(
+			company.getCompanyId(), DLFileEntry.class.getName(), 0);
+
+		CompanyLocalServiceUtil.deleteCompany(company);
+
+		webDAVProps = WebDAVPropsLocalServiceUtil.getWebDAVProps(
+			webDAVProps.getWebDavPropsId());
 	}
 
 	@Test(expected = RequiredCompanyException.class)
