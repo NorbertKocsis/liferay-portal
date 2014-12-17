@@ -72,6 +72,7 @@ import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.VirtualHost;
+import com.liferay.portal.model.WebDAVProps;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.base.CompanyLocalServiceBaseImpl;
 import com.liferay.portal.util.Portal;
@@ -1424,6 +1425,29 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			virtualHostLocalService.fetchVirtualHost(companyId, 0);
 
 		virtualHostLocalService.deleteVirtualHost(companyVirtualHost);
+
+		// WebDAVProps
+
+		ActionableDynamicQuery webDAVPropsActionableDynamicQuery =
+			webDAVPropsLocalService.getActionableDynamicQuery();
+
+		webDAVPropsActionableDynamicQuery.setCompanyId(companyId);
+
+		webDAVPropsActionableDynamicQuery.setPerformActionMethod(
+				new ActionableDynamicQuery.PerformActionMethod() {
+
+					@Override
+					public void performAction(Object object)
+						throws PortalException {
+
+						WebDAVProps webDAVProps = (WebDAVProps)object;
+
+						webDAVPropsLocalService.deleteWebDAVProps(webDAVProps);
+					}
+
+				});
+
+		webDAVPropsActionableDynamicQuery.performActions();
 
 		// Portal instance
 
