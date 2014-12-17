@@ -1382,6 +1382,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 					ticketLocalService.deleteTicket(ticket);
 				}
+
 			});
 
 		ticketActionableDynamicQuery.performActions();
