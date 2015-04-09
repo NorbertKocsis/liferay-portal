@@ -440,6 +440,10 @@ public class AssetPublisherPortletDataHandler
 					structureUuid, portletDataContext.getCompanyGroupId());
 		}
 
+		if (ddmStructure == null) {
+			return;
+		}
+
 		long structureId = ddmStructure.getStructureId();
 
 		String newValue = oldValue.replace(
