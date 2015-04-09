@@ -201,17 +201,17 @@ public class AssetPublisherPortletDataHandler
 
 		long structureId = Long.valueOf(oldValueParts[1]);
 
-		DDMStructure ddmStrucure =
+		DDMStructure ddmStructure =
 			DDMStructureLocalServiceUtil.fetchDDMStructure(structureId);
 
-		if(ddmStrucure == null) {
+		if(ddmStructure == null) {
 			portletPreferences.reset(key);
 
 			return;
 		}
 
 		String newValue = oldValue.replace(
-			String.valueOf(structureId), ddmStrucure.getUuid());
+			String.valueOf(structureId), ddmStructure.getUuid());
 
 		portletPreferences.setValue(key, newValue);
 	}
