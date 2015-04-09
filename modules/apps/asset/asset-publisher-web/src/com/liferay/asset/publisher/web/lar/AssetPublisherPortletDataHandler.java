@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -51,13 +50,13 @@ import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.util.DDMIndexer;
 import com.liferay.portlet.journal.model.JournalArticle;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.PortletPreferences;
 
@@ -184,6 +183,33 @@ public class AssetPublisherPortletDataHandler
 		portletPreferences.setValues(key, newValues);
 	}
 
+	protected void updateExportDDMStructures(
+			PortletDataContext portletDataContext,
+			PortletPreferences portletPreferences, String key)
+		throws Exception {
+
+		String oldValue = portletPreferences.getValue(key, null);
+
+		if (Validator.isNull(oldValue) || !oldValue.startsWith(
+				DDMIndexer.DDM_FIELD_PREFIX)) {
+
+			return;
+		}
+
+		String[] oldValueParts = StringUtil.split(
+			oldValue, DDMIndexer.DDM_FIELD_SEPARATOR);
+
+		long structureId = Long.valueOf(oldValueParts[1]);
+
+		DDMStructure ddmStrucure = DDMStructureLocalServiceUtil.getDDMStructure(
+			structureId);
+
+		String newValue = oldValue.replace(
+			String.valueOf(structureId), ddmStrucure.getUuid());
+
+		portletPreferences.setValue(key, newValue);
+	}
+
 	protected PortletPreferences updateExportPortletPreferences(
 			PortletDataContext portletDataContext, String portletId,
 			PortletPreferences portletPreferences)
@@ -251,6 +277,10 @@ public class AssetPublisherPortletDataHandler
 				ExportImportHelperUtil.updateExportPortletPreferencesClassPKs(
 					portletDataContext, portlet, portletPreferences, name,
 					AssetVocabulary.class.getName());
+			}
+			else if (name.startsWith("orderByColumn")) {
+				updateExportDDMStructures(
+					portletDataContext, portletPreferences, name);
 			}
 			else if (name.startsWith("queryName") &&
 					 StringUtil.equalsIgnoreCase(value, "assetCategories")) {
@@ -389,20 +419,25 @@ public class AssetPublisherPortletDataHandler
 			return;
 		}
 
-		Map<Long, Long> structureIds =
-			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
-				DDMStructure.class);
-
 		String[] oldValueParts = StringUtil.split(
 			oldValue, DDMIndexer.DDM_FIELD_SEPARATOR);
 
-		long oldStructureId = Long.valueOf(oldValueParts[1]);
+		String structureUuid = oldValueParts[1];
 
-		long newStructureId = MapUtil.getLong(
-			structureIds, oldStructureId, oldStructureId);
+		DDMStructure ddmStructure =
+			DDMStructureLocalServiceUtil.fetchDDMStructureByUuidAndGroupId(
+				structureUuid, portletDataContext.getGroupId());
+
+		if (ddmStructure == null) {
+			ddmStructure =
+				DDMStructureLocalServiceUtil.fetchDDMStructureByUuidAndGroupId(
+					structureUuid, portletDataContext.getCompanyGroupId());
+		}
+
+		long structureId = ddmStructure.getStructureId();
 
 		String newValue = oldValue.replace(
-			String.valueOf(oldStructureId), String.valueOf(newStructureId));
+			String.valueOf(structureUuid), String.valueOf(structureId));
 
 		portletPreferences.setValue(key, newValue);
 	}
