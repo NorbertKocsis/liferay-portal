@@ -28,6 +28,7 @@ import com.liferay.portal.model.OrgLabor;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.Role;
+import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupRole;
@@ -91,6 +92,14 @@ public class UsersAdminUtil {
 		throws PortalException {
 
 		return getUsersAdmin().filterGroups(permissionChecker, groups);
+	}
+
+	public static List<Team> filterGroupTeams(
+			PermissionChecker permissionChecker, long groupId, List<Team> teams)
+		throws PortalException {
+
+		return getUsersAdmin().filterGroupTeams(
+			permissionChecker, groupId, teams);
 	}
 
 	public static List<Organization> filterOrganizations(

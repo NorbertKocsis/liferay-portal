@@ -42,6 +42,7 @@ import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupRole;
@@ -72,6 +73,7 @@ import com.liferay.portal.service.WebsiteServiceUtil;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.OrganizationPermissionUtil;
 import com.liferay.portal.service.permission.RolePermissionUtil;
+import com.liferay.portal.service.permission.TeamPermissionUtil;
 import com.liferay.portal.service.permission.UserGroupPermissionUtil;
 import com.liferay.portal.service.permission.UserGroupRolePermissionUtil;
 import com.liferay.portal.service.permission.UserPermissionUtil;
@@ -275,6 +277,33 @@ public class UsersAdminImpl implements UsersAdmin {
 		}
 
 		return filteredGroups;
+	}
+
+	@Override
+	public List<Team> filterGroupTeams(
+			PermissionChecker permissionChecker, long groupId, List<Team> teams)
+		throws PortalException {
+
+		if (permissionChecker.isCompanyAdmin() ||
+			permissionChecker.isGroupAdmin(groupId)) {
+			return teams;
+		}
+
+		List<Team> filteredTeams = ListUtil.copy(teams);
+
+		Iterator<Team> itr = filteredTeams.iterator();
+
+		while (itr.hasNext()) {
+			Team team = itr.next();
+
+			if (!TeamPermissionUtil.contains(
+					permissionChecker, team, ActionKeys.ASSIGN_MEMBERS)) {
+
+				itr.remove();
+			}
+		}
+
+		return filteredTeams;
 	}
 
 	@Override

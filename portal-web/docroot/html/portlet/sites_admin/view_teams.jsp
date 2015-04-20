@@ -59,10 +59,6 @@ pageContext.setAttribute("portletURL", portletURL);
 		TeamDisplayTerms searchTerms = (TeamDisplayTerms)searchContainer.getSearchTerms();
 
 		portletURL.setParameter(searchContainer.getCurParam(), String.valueOf(searchContainer.getCur()));
-
-		total = TeamLocalServiceUtil.searchCount(groupId, searchTerms.getName(), searchTerms.getDescription(), new LinkedHashMap<String, Object>());
-
-		searchContainer.setTotal(total);
 		%>
 
 		<aui:nav-bar>
@@ -85,9 +81,23 @@ pageContext.setAttribute("portletURL", portletURL);
 			</aui:nav-bar-search>
 		</aui:nav-bar>
 
-		<liferay-ui:search-container-results
-			results="<%= TeamLocalServiceUtil.search(groupId, searchTerms.getName(), searchTerms.getDescription(), new LinkedHashMap<String, Object>(), searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator()) %>"
-		/>
+		<liferay-ui:search-container-results>
+
+			<%
+			List<Team> teams = TeamLocalServiceUtil.search(groupId, searchTerms.getName(), searchTerms.getDescription(), new LinkedHashMap<String, Object>(), searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator());
+
+			teams = UsersAdminUtil.filterGroupTeams(permissionChecker, groupId, teams);
+
+			total = teams.size();
+
+			searchContainer.setTotal(total);
+
+			results = ListUtil.subList(teams, searchContainer.getStart(), searchContainer.getEnd());
+
+			searchContainer.setResults(results);
+			%>
+
+		</liferay-ui:search-container-results>
 
 		<liferay-ui:search-container-row
 			className="com.liferay.portal.model.Team"

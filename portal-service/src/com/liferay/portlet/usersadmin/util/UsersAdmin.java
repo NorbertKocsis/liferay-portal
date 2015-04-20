@@ -33,6 +33,7 @@ import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.Region;
 import com.liferay.portal.model.Role;
+import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupGroupRole;
@@ -211,6 +212,10 @@ public interface UsersAdmin {
 
 	public List<Group> filterGroups(
 			PermissionChecker permissionChecker, List<Group> groups)
+		throws PortalException;
+
+	public List<Team> filterGroupTeams(
+			PermissionChecker permissionChecker, long groupId, List<Team> teams)
 		throws PortalException;
 
 	public List<Organization> filterOrganizations(
