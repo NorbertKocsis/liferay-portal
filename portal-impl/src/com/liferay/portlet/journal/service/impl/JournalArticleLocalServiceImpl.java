@@ -115,6 +115,7 @@ import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
 import com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil;
+import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.journal.ArticleContentException;
 import com.liferay.portlet.journal.ArticleDisplayDateException;
 import com.liferay.portlet.journal.ArticleExpirationDateException;
@@ -6346,6 +6347,16 @@ public class JournalArticleLocalServiceImpl
 		newArticle.setContent(contentDocument.formattedString());
 	}
 
+	protected void copyExpandoBridgeAttributes(
+		JournalArticle newArticle, JournalArticle oldArticle) {
+
+		ExpandoBridge newExpandoBridge = newArticle.getExpandoBridge();
+		ExpandoBridge oldExpandoBridge = oldArticle.getExpandoBridge();
+
+		newExpandoBridge.setAttributes(
+			oldExpandoBridge.getAttributes(false), false);
+	}
+
 	protected Map<String, String> createFieldsValuesMap(Element parentElement) {
 		Map<String, String> fieldsValuesMap = new HashMap<>();
 
@@ -7351,6 +7362,31 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
 		subscriptionSender.flushNotificationsAsync();
+	}
+
+	protected void setExpandoBridgeAttributes(
+		JournalArticle newArticle, JournalArticle oldArticle,
+		ServiceContext serviceContext) {
+
+		ExpandoBridge newExpandoBridge = newArticle.getExpandoBridge();
+		ExpandoBridge oldExpandoBridge = oldArticle.getExpandoBridge();
+
+		Map<String, Serializable> newAttributes =
+			serviceContext.getExpandoBridgeAttributes();
+
+		Map<String, Serializable> oldAttributes =
+			oldExpandoBridge.getAttributes(false);
+
+		Map<String, Serializable> mergedAttributes = new HashMap<>(
+			newAttributes);
+
+		for (String key : oldAttributes.keySet()) {
+			if (!mergedAttributes.containsKey(key)) {
+				mergedAttributes.put(key, oldAttributes.get(key));
+			}
+		}
+
+		newExpandoBridge.setAttributes(mergedAttributes, false);
 	}
 
 	protected void startWorkflowInstance(
