@@ -829,9 +829,11 @@ public class JournalArticleLocalServiceImpl
 			newArticle.setStatus(oldArticle.getStatus());
 		}
 
-		newArticle.setExpandoBridgeAttributes(oldArticle);
-
 		journalArticlePersistence.update(newArticle);
+
+		// Expando
+
+		copyExpandoBridgeAttributes(newArticle, oldArticle);
 
 		// Resources
 
@@ -5253,7 +5255,7 @@ public class JournalArticleLocalServiceImpl
 			article.setStatus(WorkflowConstants.STATUS_EXPIRED);
 		}
 
-		article.setExpandoBridgeAttributes(serviceContext);
+		setExpandoBridgeAttributes(article, latestArticle, serviceContext);
 
 		journalArticlePersistence.update(article);
 
@@ -5482,7 +5484,8 @@ public class JournalArticleLocalServiceImpl
 
 			article.setStatus(WorkflowConstants.STATUS_DRAFT);
 			article.setStatusDate(new Date());
-			article.setExpandoBridgeAttributes(oldArticle);
+
+			copyExpandoBridgeAttributes(article, oldArticle);
 
 			// Dynamic data mapping
 
