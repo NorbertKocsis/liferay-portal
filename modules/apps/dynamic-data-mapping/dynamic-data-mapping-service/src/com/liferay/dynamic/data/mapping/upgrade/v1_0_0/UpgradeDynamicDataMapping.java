@@ -23,6 +23,7 @@ import com.liferay.dynamic.data.mapping.model.DDMContent;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
@@ -60,9 +61,7 @@ import com.liferay.portal.kernel.xml.XPath;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.display.template.PortletDisplayTemplate;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
@@ -266,8 +265,6 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		upgradeXMLStorageAdapter();
 
 		upgradeFileUploadReferences();
-
-		updateResourceClassNameIds();
 	}
 
 	protected DDMForm getDDMForm(long structureId) throws Exception {
@@ -334,6 +331,22 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		DDMFormLayout ddmFormLayout = DDMUtil.getDefaultDDMFormLayout(ddmForm);
 
 		return DDMFormLayoutJSONSerializerUtil.serialize(ddmFormLayout);
+	}
+
+	protected long getTemplateResourceClassNameId(
+		long classNameId, long classPK) {
+
+		if (classNameId != PortalUtil.getClassNameId(DDMStructure.class)) {
+			return PortalUtil.getClassNameId(
+				"com.liferay.portlet.display.template.PortletDisplayTemplate");
+		}
+
+		if (classPK == 0) {
+			return PortalUtil.getClassNameId(
+				"com.liferay.journal.model.JournalArticle");
+		}
+
+		return _structureClassNameIds.get(classPK);
 	}
 
 	protected String toJSON(DDMForm ddmForm) {
@@ -434,35 +447,6 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		}
 
 		return copyDDMForm;
-	}
-
-	protected void updateResourceClassNameIds() throws Exception {
-		StringBundler sb = new StringBundler(3);
-
-		sb.append("update DDMTemplate set resourceClassNameId = (select ");
-		sb.append("classNameId from DDMStructure where DDMStructure.");
-		sb.append("structureId = DDMTemplate.classPK) where classPK != 0;");
-
-		runSQL(sb.toString());
-
-		Connection con = null;
-		PreparedStatement ps = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			long resourceClassNameId = ClassNameLocalServiceUtil.getClassNameId(
-				PortletDisplayTemplate.class);
-
-			ps = con.prepareStatement(
-				"update DDMTemplate set resourceClassNameId = ? where " +
-					"classPK = 0");
-
-			ps.setLong(1, resourceClassNameId);
-		}
-		finally {
-			DataAccess.cleanUp(con, ps);
-		}
 	}
 
 	protected void updateStructureStorageType() throws Exception {
@@ -641,10 +625,15 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				String userName = rs.getString("userName");
 				Timestamp modifiedDate = rs.getTimestamp("modifiedDate");
 				long parentStructureId = rs.getLong("parentStructureId");
+				long classNameId = rs.getLong("classNameId");
 				String name = rs.getString("name");
 				String description = rs.getString("description");
 				String storageType = rs.getString("storageType");
 				int type = rs.getInt("type_");
+
+				_structureClassNameIds.put(structureId, classNameId);
+
+				// Structure content
 
 				DDMForm ddmForm = getDDMForm(structureId);
 
@@ -652,7 +641,9 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 				String definition = toJSON(ddmForm);
 
-				upgradeStructureDefinition(structureId, definition);
+				upgradeStructureDefinition(structureId, toJSON(ddmForm));
+
+				// Structure version
 
 				long structureVersionId = increment();
 
@@ -662,6 +653,8 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 					description, definition, storageType, type,
 					WorkflowConstants.STATUS_APPROVED, userId, userName,
 					modifiedDate);
+
+				// Structure layout
 
 				String ddmFormLayoutDefinition =
 					getDefaultDDMFormLayoutDefinition(ddmForm);
@@ -674,6 +667,28 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		}
 		finally {
 			DataAccess.cleanUp(con, ps, rs);
+		}
+	}
+
+	protected void upgradeTemplateResourceClassNameId(
+			long templateId, long resourceClassNameId)
+		throws Exception {
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"update DDMTemplate set resourceClassNameId = ? where " +
+					"templateId = ?");
+
+			ps.setLong(1, resourceClassNameId);
+			ps.setLong(2, templateId);
+		}
+		finally {
+			DataAccess.cleanUp(con, ps);
 		}
 	}
 
@@ -703,6 +718,16 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				String language = rs.getString("language");
 				String script = rs.getString("script");
 
+				// Template resource class name ID
+
+				long resourceClassNameId = getTemplateResourceClassNameId(
+					classNameId, classPK);
+
+				upgradeTemplateResourceClassNameId(
+					templateId, resourceClassNameId);
+
+				// Template content
+
 				if (language.equals("xsd")) {
 					DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(
 						script);
@@ -713,6 +738,8 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 					upgradeTemplateScript(templateId, script);
 				}
+
+				// Template version
 
 				addTemplateVersion(
 					increment(), groupId, companyId, userId, userName,
@@ -802,6 +829,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		UpgradeDynamicDataMapping.class);
 
 	private final Map<Long, DDMForm> _ddmForms = new HashMap<>();
+	private final Map<Long, Long> _structureClassNameIds = new HashMap<>();
 
 	private class DDMFormValuesXSDDeserializer {
 
