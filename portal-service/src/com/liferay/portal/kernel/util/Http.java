@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface Http {
 
+	public static final String DOUBLE_SLASH = "//";
+
 	public static final String HTTP = "http";
 
 	public static final int HTTP_PORT = 80;
