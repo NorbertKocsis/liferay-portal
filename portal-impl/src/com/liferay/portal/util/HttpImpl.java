@@ -1084,14 +1084,14 @@ public class HttpImpl implements Http {
 			return url;
 		}
 
-		if (url.startsWith(StringPool.DOUBLE_SLASH)) {
-			return url.substring(StringPool.DOUBLE_SLASH.length());
-		}
-		else if (url.startsWith(Http.HTTP_WITH_SLASH)) {
+		if (url.startsWith(Http.HTTP_WITH_SLASH)) {
 			return url.substring(Http.HTTP_WITH_SLASH.length());
 		}
 		else if (url.startsWith(Http.HTTPS_WITH_SLASH)) {
 			return url.substring(Http.HTTPS_WITH_SLASH.length());
+		}
+		else if (url.startsWith(StringPool.DOUBLE_SLASH)) {
+			return url.substring(StringPool.DOUBLE_SLASH.length());
 		}
 		else {
 			return url;
