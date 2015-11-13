@@ -353,6 +353,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			contactPersistence.update(defaultContact);
 		}
 
+		long tempConmpanyId = CompanyThreadLocal.getCompanyId();
+
+		CompanyThreadLocal.setCompanyId(companyId);
+
 		// System roles
 
 		roleLocalService.checkSystemRoles(companyId);
@@ -364,6 +368,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		// Company group
 
 		groupLocalService.checkCompanyGroup(companyId);
+
+		CompanyThreadLocal.setCompanyId(tempConmpanyId);
 
 		// Default password policy
 
