@@ -708,7 +708,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				LayoutSet layoutSet = layoutSetLocalService.getLayoutSet(
 					group.getGroupId(), true);
 
-				if (layoutSet.getPageCount() == 0) {
+				if (PropsValues.COMPANY_REGENERATE_SYSTEM_LAYOUTS_ON_STARTUP ||
+					(layoutSet.getPageCount() == 0)) {
+
+					layoutLocalService.deleteLayouts(
+						group.getGroupId(), true, new ServiceContext());
+
 					addControlPanelLayouts(group);
 				}
 			}
@@ -717,7 +722,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				LayoutSet layoutSet = layoutSetLocalService.getLayoutSet(
 					group.getGroupId(), false);
 
-				if (layoutSet.getPageCount() == 0) {
+				if (PropsValues.COMPANY_REGENERATE_SYSTEM_LAYOUTS_ON_STARTUP ||
+					(layoutSet.getPageCount() == 0)) {
+
+					layoutLocalService.deleteLayouts(
+						group.getGroupId(), false, new ServiceContext());
+
 					addDefaultGuestPublicLayouts(group);
 				}
 			}
