@@ -320,6 +320,8 @@ public class PropsValues {
 
 	public static final boolean COMPANY_LOGIN_PREPOPULATE_DOMAIN = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.COMPANY_LOGIN_PREPOPULATE_DOMAIN));
 
+	public static final boolean COMPANY_REGENERATE_SYSTEM_LAYOUTS_ON_STARTUP = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.COMPANY_REGENERATE_SYSTEM_LAYOUTS_ON_STARTUP));
+
 	public static final boolean COMPANY_SECURITY_AUTH_REQUIRES_HTTPS = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS));
 
 	public static final String COMPANY_SECURITY_AUTH_TYPE = PropsUtil.get(PropsKeys.COMPANY_SECURITY_AUTH_TYPE);
