@@ -18,6 +18,8 @@ import com.liferay.portal.ModelListenerException;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.UserLocalServiceUtil;
 
 /**
@@ -59,9 +61,14 @@ public class UserModelListener extends BaseModelListener<User> {
 		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			User.class);
 
-		User user = UserLocalServiceUtil.fetchUser(userId);
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
 
-		indexer.reindex(user);
+		if ((serviceContext == null) || serviceContext.isIndexingEnabled()) {
+			User user = UserLocalServiceUtil.fetchUser(userId);
+
+			indexer.reindex(user);
+		}
 
 		PermissionCacheUtil.clearCache(userId);
 	}
