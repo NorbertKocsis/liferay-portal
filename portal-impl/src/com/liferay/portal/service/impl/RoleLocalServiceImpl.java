@@ -239,10 +239,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		throws PortalException {
 
 		userPersistence.addRoles(userId, roleIds);
-
-		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1278,10 +1274,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		roleIds = UsersAdminUtil.addRequiredRoles(userId, roleIds);
 
 		userPersistence.setRoles(userId, roleIds);
-
-		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1298,10 +1290,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		roleIds = UsersAdminUtil.removeRequiredRoles(userId, roleIds);
 
 		userPersistence.removeRoles(userId, roleIds);
-
-		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**

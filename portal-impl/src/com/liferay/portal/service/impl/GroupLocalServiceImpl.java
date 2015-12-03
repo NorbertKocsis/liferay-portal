@@ -611,8 +611,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	@Override
 	public void addUserGroups(long userId, long[] groupIds) {
 		userPersistence.addGroups(userId, groupIds);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -3165,8 +3163,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		userGroupRoleLocalService.deleteUserGroupRoles(userId, groupIds);
 
 		userPersistence.removeGroups(userId, groupIds);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**

@@ -124,29 +124,21 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 	@Override
 	public void addUserTeam(long userId, long teamId) {
 		super.addUserTeam(userId, teamId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void addUserTeam(long userId, Team team) {
 		super.addUserTeam(userId, team);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void addUserTeams(long userId, List<Team> Teams) {
 		super.addUserTeams(userId, Teams);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void addUserTeams(long userId, long[] teamIds) {
 		super.addUserTeams(userId, teamIds);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
@@ -159,8 +151,6 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 	@Override
 	public void clearUserTeams(long userId) {
 		super.clearUserTeams(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
@@ -225,36 +215,26 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 	@Override
 	public void deleteUserGroupTeams(long userGroupId, long[] teamIds) {
 		super.deleteUserGroupTeams(userGroupId, teamIds);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	@Override
 	public void deleteUserTeam(long userId, long teamId) {
 		super.deleteUserTeam(userId, teamId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void deleteUserTeam(long userId, Team team) {
 		super.deleteUserTeam(userId, team);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void deleteUserTeams(long userId, List<Team> Teams) {
 		super.deleteUserTeams(userId, Teams);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
 	public void deleteUserTeams(long userId, long[] teamIds) {
 		super.deleteUserTeams(userId, teamIds);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override

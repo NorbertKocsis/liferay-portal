@@ -73,7 +73,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PwdGenerator;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -461,10 +460,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		groupPersistence.addUsers(groupId, userIds);
 
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
-
 		addDefaultRolesAndTeams(groupId, userIds);
 	}
 
@@ -479,10 +474,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		organizationPersistence.addUsers(organizationId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -509,10 +500,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		rolePersistence.addUsers(roleId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -526,10 +513,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		teamPersistence.addUsers(teamId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -636,10 +619,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		userGroupPersistence.addUsers(userGroupId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -1540,8 +1519,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	@Override
 	public void clearOrganizationUsers(long organizationId) {
 		organizationPersistence.clearUsers(organizationId);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	/**
@@ -1552,8 +1529,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	@Override
 	public void clearUserGroupUsers(long userGroupId) {
 		userGroupPersistence.clearUsers(userGroupId);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	/**
@@ -1716,10 +1691,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		rolePersistence.removeUser(roleId, userId);
-
-		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1885,10 +1856,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		userGroupPersistence.removeUser(userGroupId, userId);
-
-		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -3774,18 +3741,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	public void setRoleUsers(long roleId, long[] userIds)
 		throws PortalException {
 
-		long[] oldUserIds = rolePersistence.getUserPrimaryKeys(roleId);
-
-		Set<Long> updatedUserIdsSet = SetUtil.symmetricDifference(
-			userIds, oldUserIds);
-
-		long[] updateUserIds = ArrayUtil.toLongArray(updatedUserIdsSet);
-
 		rolePersistence.setUsers(roleId, userIds);
-
-		reindex(updateUserIds);
-
-		PermissionCacheUtil.clearCache(updateUserIds);
 	}
 
 	/**
@@ -3804,19 +3760,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			userGroupLocalService.copyUserGroupLayouts(userGroupId, userIds);
 		}
 
-		long[] oldUserIds = userGroupPersistence.getUserPrimaryKeys(
-			userGroupId);
-
-		Set<Long> updatedUserIdsSet = SetUtil.symmetricDifference(
-			userIds, oldUserIds);
-
-		long[] updateUserIds = ArrayUtil.toLongArray(updatedUserIdsSet);
-
 		userGroupPersistence.setUsers(userGroupId, userIds);
-
-		reindex(updateUserIds);
-
-		PermissionCacheUtil.clearCache(updateUserIds);
 	}
 
 	/**
@@ -3834,8 +3778,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		for (Team team : teams) {
 			unsetTeamUsers(team.getTeamId(), userIds);
 		}
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -3858,10 +3800,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		unsetGroupTeamsUsers(groupId, userIds);
 
 		groupPersistence.removeUsers(groupId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 
 		Callable<Void> callable = new Callable<Void>() {
 
@@ -3903,10 +3841,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			userIds, group.getGroupId());
 
 		organizationPersistence.removeUsers(organizationId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 
 		Callable<Void> callable = new Callable<Void>() {
 
@@ -3964,21 +3898,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		rolePersistence.removeUsers(roleId, users);
-
-		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			User.class);
-
-		indexer.reindex(users);
-
-		long[] userIds = new long[users.size()];
-
-		for (int i = 0; i < users.size(); i++) {
-			User user = users.get(i);
-
-			userIds[i] = user.getUserId();
-		}
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4003,10 +3922,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		rolePersistence.removeUsers(roleId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4020,10 +3935,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		teamPersistence.removeUsers(teamId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4037,10 +3948,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		userGroupPersistence.removeUsers(userGroupId, userIds);
-
-		reindex(userIds);
-
-		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**

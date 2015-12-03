@@ -222,8 +222,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	@Override
 	public void clearUserUserGroups(long userId) {
 		userPersistence.clearUserGroups(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -826,15 +824,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		}
 
 		userPersistence.setUserGroups(userId, userGroupIds);
-
-		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			User.class);
-
-		User user = userLocalService.fetchUser(userId);
-
-		indexer.reindex(user);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -855,8 +844,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 			userGroupIds, groupId);
 
 		groupPersistence.removeUserGroups(groupId, userGroupIds);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	/**
