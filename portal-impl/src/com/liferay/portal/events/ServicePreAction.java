@@ -1731,9 +1731,12 @@ public class ServicePreAction extends Action {
 	protected boolean isLoginRequest(HttpServletRequest request) {
 		String requestURI = request.getRequestURI();
 
+		String proxyRequestURI = PortalUtil.getPathProxy();
+		proxyRequestURI = proxyRequestURI.concat(requestURI);
+
 		String mainPath = PortalUtil.getPathMain();
 
-		if (requestURI.startsWith(mainPath.concat(_PATH_PORTAL_LOGIN))) {
+		if (proxyRequestURI.startsWith(mainPath.concat(_PATH_PORTAL_LOGIN))) {
 			return true;
 		}
 		else {
