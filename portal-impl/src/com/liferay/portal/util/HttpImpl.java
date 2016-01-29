@@ -1084,15 +1084,26 @@ public class HttpImpl implements Http {
 			return url;
 		}
 
-		if (url.startsWith(Http.HTTP_WITH_SLASH)) {
-			return url.substring(Http.HTTP_WITH_SLASH.length());
-		}
-		else if (url.startsWith(Http.HTTPS_WITH_SLASH)) {
-			return url.substring(Http.HTTPS_WITH_SLASH.length());
+		if (url.contains(Http.PROTOCOL_DELIMITER)) {
+			int pos = url.lastIndexOf(Http.PROTOCOL_DELIMITER);
+
+			url = url.substring(pos + Http.PROTOCOL_DELIMITER.length());
+
+			Matcher matcher = _whitespaceOrSlashPattern.matcher(url);
+
+			if (matcher.matches()) {
+				url = url.replaceFirst("\\s*/[\\s/]*", StringPool.BLANK);
+			}
 		}
 		else {
-			return url;
+			Matcher matcher = _protocolRelativePattern.matcher(url);
+
+			if (matcher.matches()) {
+				url = url.replaceFirst("\\s*//[\\s/]*", StringPool.BLANK);
+			}
 		}
+
+		return url;
 	}
 
 	@Override
@@ -1804,8 +1815,12 @@ public class HttpImpl implements Http {
 
 	private final HttpClient _httpClient = new HttpClient();
 	private final Pattern _nonProxyHostsPattern;
+	private final Pattern _protocolRelativePattern =
+		Pattern.compile("\\s*//.*");
 	private final Credentials _proxyCredentials;
 	private final HttpClient _proxyHttpClient = new HttpClient();
+	private final Pattern _whitespaceOrSlashPattern =
+		Pattern.compile("\\s*/.*");
 
 	private class FastProtocolSocketFactory
 		extends DefaultProtocolSocketFactory {
