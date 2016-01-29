@@ -1089,17 +1089,17 @@ public class HttpImpl implements Http {
 
 			url = url.substring(pos + Http.PROTOCOL_DELIMITER.length());
 
-			Matcher matcher = _whitespaceOrSlashPattern.matcher(url);
+			Matcher matcher = _startingWhitespaceOrSlashesPattern.matcher(url);
 
-			if (matcher.matches()) {
-				url = url.replaceFirst("\\s*/[\\s/]*", StringPool.BLANK);
-			}
+			url = matcher.replaceFirst(StringPool.BLANK);
 		}
 		else {
 			Matcher matcher = _protocolRelativePattern.matcher(url);
 
 			if (matcher.matches()) {
-				url = url.replaceFirst("\\s*//[\\s/]*", StringPool.BLANK);
+				matcher = _startingWhitespaceOrSlashesPattern.matcher(url);
+
+				url = matcher.replaceFirst(StringPool.BLANK);
 			}
 		}
 
@@ -1819,8 +1819,9 @@ public class HttpImpl implements Http {
 		Pattern.compile("\\s*//.*");
 	private final Credentials _proxyCredentials;
 	private final HttpClient _proxyHttpClient = new HttpClient();
-	private final Pattern _whitespaceOrSlashPattern =
-		Pattern.compile("\\s*/.*");
+	private final Pattern _removeSlashes = Pattern.compile("[\\s/]*");
+	private final Pattern _startingWhitespaceOrSlashesPattern = Pattern.compile(
+		"^[\\s/]*");
 
 	private class FastProtocolSocketFactory
 		extends DefaultProtocolSocketFactory {
