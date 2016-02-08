@@ -208,6 +208,34 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		return userGroup;
 	}
 
+	@Override
+	public void addUserUserGroup(long userId, long userGroupId) {
+		userPersistence.addUserGroup(userId, userGroupId);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserUserGroup(long userId, UserGroup userGroup) {
+		userPersistence.addUserGroup(userId, userGroup);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserUserGroups(long userId, List<UserGroup> userGroups) {
+		userPersistence.addUserGroups(userId, userGroups);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserUserGroups(long userId, long[] userGroupIds) {
+		userPersistence.addUserGroups(userId, userGroupIds);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
 	/**
 	 * Clears all associations between the user and its user groups and clears
 	 * the permissions cache.
@@ -380,6 +408,34 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		for (UserGroup userGroup : userGroups) {
 			userGroupLocalService.deleteUserGroup(userGroup);
 		}
+	}
+
+	@Override
+	public void deleteUserUserGroup(long userId, UserGroup userGroup) {
+		userPersistence.removeUserGroup(userId, userGroup);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserUserGroup(long userId, long userGroupId) {
+		userPersistence.removeUserGroup(userId, userGroupId);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserUserGroups(long userId, List<UserGroup> userGroups) {
+		userPersistence.removeUserGroups(userId, userGroups);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserUserGroups(long userId, long[] userGroupIds) {
+		userPersistence.removeUserGroups(userId, userGroupIds);
+
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
