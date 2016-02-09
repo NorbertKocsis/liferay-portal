@@ -259,9 +259,17 @@ public interface UserLocalService extends BaseLocalService,
 	@Indexable(type = IndexableType.REINDEX)
 	public User addUser(User user);
 
-	public void addUserGroupUser(long userGroupId, User user);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserGroupUser(long userGroupId, User user)
+		throws PortalException;
 
-	public void addUserGroupUser(long userGroupId, long userId);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserGroupUser(long userGroupId, long userId)
+		throws PortalException;
 
 	/**
 	* @throws PortalException
@@ -671,9 +679,17 @@ public interface UserLocalService extends BaseLocalService,
 	public void deleteUserGroupUser(long userGroupId, long userId)
 		throws PortalException;
 
-	public void deleteUserGroupUsers(long userGroupId, List<User> Users);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserGroupUsers(long userGroupId, List<User> Users)
+		throws PortalException;
 
-	public void deleteUserGroupUsers(long userGroupId, long[] userIds);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserGroupUsers(long userGroupId, long[] userIds)
+		throws PortalException;
 
 	public DynamicQuery dynamicQuery();
 

@@ -306,14 +306,22 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		return _userLocalService.addUser(user);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void addUserGroupUser(long userGroupId,
-		com.liferay.portal.kernel.model.User user) {
+		com.liferay.portal.kernel.model.User user)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userLocalService.addUserGroupUser(userGroupId, user);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void addUserGroupUser(long userGroupId, long userId) {
+	public void addUserGroupUser(long userGroupId, long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userLocalService.addUserGroupUser(userGroupId, userId);
 	}
 
@@ -889,14 +897,22 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		_userLocalService.deleteUserGroupUser(userGroupId, userId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void deleteUserGroupUsers(long userGroupId,
-		java.util.List<com.liferay.portal.kernel.model.User> Users) {
+		java.util.List<com.liferay.portal.kernel.model.User> Users)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userLocalService.deleteUserGroupUsers(userGroupId, Users);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void deleteUserGroupUsers(long userGroupId, long[] userIds) {
+	public void deleteUserGroupUsers(long userGroupId, long[] userIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userLocalService.deleteUserGroupUsers(userGroupId, userIds);
 	}
 

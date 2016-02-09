@@ -138,19 +138,38 @@ public interface UserGroupLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws PortalException;
 
-	public void addUserUserGroup(long userId, UserGroup userGroup);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserUserGroup(long userId, UserGroup userGroup)
+		throws PortalException;
 
-	public void addUserUserGroup(long userId, long userGroupId);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserUserGroup(long userId, long userGroupId)
+		throws PortalException;
 
-	public void addUserUserGroups(long userId, List<UserGroup> UserGroups);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserUserGroups(long userId, List<UserGroup> UserGroups)
+		throws PortalException;
 
-	public void addUserUserGroups(long userId, long[] userGroupIds);
+	/**
+	* @throws PortalException
+	*/
+	public void addUserUserGroups(long userId, long[] userGroupIds)
+		throws PortalException;
 
 	public void clearGroupUserGroups(long groupId);
 
 	public void clearTeamUserGroups(long teamId);
 
-	public void clearUserUserGroups(long userId);
+	/**
+	* @throws PortalException
+	*/
+	public void clearUserUserGroups(long userId) throws PortalException;
 
 	/**
 	* Copies the user group's layout to the user.
@@ -242,13 +261,29 @@ public interface UserGroupLocalService extends BaseLocalService,
 
 	public void deleteUserGroups(long companyId) throws PortalException;
 
-	public void deleteUserUserGroup(long userId, UserGroup userGroup);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserUserGroup(long userId, UserGroup userGroup)
+		throws PortalException;
 
-	public void deleteUserUserGroup(long userId, long userGroupId);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserUserGroup(long userId, long userGroupId)
+		throws PortalException;
 
-	public void deleteUserUserGroups(long userId, List<UserGroup> UserGroups);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserUserGroups(long userId, List<UserGroup> UserGroups)
+		throws PortalException;
 
-	public void deleteUserUserGroups(long userId, long[] userGroupIds);
+	/**
+	* @throws PortalException
+	*/
+	public void deleteUserUserGroups(long userId, long[] userGroupIds)
+		throws PortalException;
 
 	public DynamicQuery dynamicQuery();
 

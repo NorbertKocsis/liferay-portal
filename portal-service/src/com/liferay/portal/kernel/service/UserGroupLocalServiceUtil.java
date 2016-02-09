@@ -142,21 +142,37 @@ public class UserGroupLocalServiceUtil {
 			serviceContext);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	public static void addUserUserGroup(long userId,
-		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		com.liferay.portal.kernel.model.UserGroup userGroup)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().addUserUserGroup(userId, userGroup);
 	}
 
-	public static void addUserUserGroup(long userId, long userGroupId) {
+	/**
+	* @throws PortalException
+	*/
+	public static void addUserUserGroup(long userId, long userGroupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().addUserUserGroup(userId, userGroupId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	public static void addUserUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups) {
+		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().addUserUserGroups(userId, UserGroups);
 	}
 
-	public static void addUserUserGroups(long userId, long[] userGroupIds) {
+	/**
+	* @throws PortalException
+	*/
+	public static void addUserUserGroups(long userId, long[] userGroupIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().addUserUserGroups(userId, userGroupIds);
 	}
 
@@ -168,7 +184,11 @@ public class UserGroupLocalServiceUtil {
 		getService().clearTeamUserGroups(teamId);
 	}
 
-	public static void clearUserUserGroups(long userId) {
+	/**
+	* @throws PortalException
+	*/
+	public static void clearUserUserGroups(long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().clearUserUserGroups(userId);
 	}
 
@@ -299,21 +319,37 @@ public class UserGroupLocalServiceUtil {
 		getService().deleteUserGroups(companyId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	public static void deleteUserUserGroup(long userId,
-		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		com.liferay.portal.kernel.model.UserGroup userGroup)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteUserUserGroup(userId, userGroup);
 	}
 
-	public static void deleteUserUserGroup(long userId, long userGroupId) {
+	/**
+	* @throws PortalException
+	*/
+	public static void deleteUserUserGroup(long userId, long userGroupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteUserUserGroup(userId, userGroupId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	public static void deleteUserUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups) {
+		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteUserUserGroups(userId, UserGroups);
 	}
 
-	public static void deleteUserUserGroups(long userId, long[] userGroupIds) {
+	/**
+	* @throws PortalException
+	*/
+	public static void deleteUserUserGroups(long userId, long[] userGroupIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteUserUserGroups(userId, userGroupIds);
 	}
 

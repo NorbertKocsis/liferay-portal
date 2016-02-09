@@ -142,25 +142,41 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 			description, serviceContext);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void addUserUserGroup(long userId,
-		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		com.liferay.portal.kernel.model.UserGroup userGroup)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.addUserUserGroup(userId, userGroup);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void addUserUserGroup(long userId, long userGroupId) {
+	public void addUserUserGroup(long userId, long userGroupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.addUserUserGroup(userId, userGroupId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void addUserUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups) {
+		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.addUserUserGroups(userId, UserGroups);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void addUserUserGroups(long userId, long[] userGroupIds) {
+	public void addUserUserGroups(long userId, long[] userGroupIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.addUserUserGroups(userId, userGroupIds);
 	}
 
@@ -174,8 +190,12 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 		_userGroupLocalService.clearTeamUserGroups(teamId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void clearUserUserGroups(long userId) {
+	public void clearUserUserGroups(long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.clearUserUserGroups(userId);
 	}
 
@@ -322,25 +342,41 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 		_userGroupLocalService.deleteUserGroups(companyId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void deleteUserUserGroup(long userId,
-		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		com.liferay.portal.kernel.model.UserGroup userGroup)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.deleteUserUserGroup(userId, userGroup);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void deleteUserUserGroup(long userId, long userGroupId) {
+	public void deleteUserUserGroup(long userId, long userGroupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.deleteUserUserGroup(userId, userGroupId);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
 	public void deleteUserUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups) {
+		java.util.List<com.liferay.portal.kernel.model.UserGroup> UserGroups)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.deleteUserUserGroups(userId, UserGroups);
 	}
 
+	/**
+	* @throws PortalException
+	*/
 	@Override
-	public void deleteUserUserGroups(long userId, long[] userGroupIds) {
+	public void deleteUserUserGroups(long userId, long[] userGroupIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_userGroupLocalService.deleteUserUserGroups(userId, userGroupIds);
 	}
 

@@ -969,16 +969,20 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserGroupUser(long userGroupId, long userId) {
+	public void addUserGroupUser(long userGroupId, long userId)
+		throws PortalException {
 		userGroupPersistence.addUser(userGroupId, userId);
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserGroupUser(long userGroupId, User user) {
+	public void addUserGroupUser(long userGroupId, User user)
+		throws PortalException {
 		userGroupPersistence.addUser(userGroupId, user);
 	}
 
@@ -1026,16 +1030,20 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void deleteUserGroupUsers(long userGroupId, long[] userIds) {
+	public void deleteUserGroupUsers(long userGroupId, long[] userIds)
+		throws PortalException {
 		userGroupPersistence.removeUsers(userGroupId, userIds);
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void deleteUserGroupUsers(long userGroupId, List<User> Users) {
+	public void deleteUserGroupUsers(long userGroupId, List<User> Users)
+		throws PortalException {
 		userGroupPersistence.removeUsers(userGroupId, Users);
 	}
 
