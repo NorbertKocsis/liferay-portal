@@ -586,17 +586,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void addUserGroupUser(long userGroupId, User user)
-		throws PortalException {
-
-		userGroupPersistence.addUser(userGroupId, user);
-
-		reindex(user);
-
-		PermissionCacheUtil.clearCache(user.getUserId());
-	}
-
-	@Override
 	public void addUserGroupUser(long userGroupId, long userId)
 		throws PortalException {
 
@@ -605,6 +594,17 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		reindex(userId);
 
 		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserGroupUser(long userGroupId, User user)
+		throws PortalException {
+
+		userGroupPersistence.addUser(userGroupId, user);
+
+		reindex(user);
+
+		PermissionCacheUtil.clearCache(user.getUserId());
 	}
 
 	/**
@@ -1893,20 +1893,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @throws PortalException
-	 */
-	public void deleteUserGroupUser(long userGroupId, User user)
-		throws PortalException {
-
-		userGroupPersistence.removeUser(userGroupId, user);
-
-		reindex(user);
-
-		PermissionCacheUtil.clearCache(user.getUserId());
-	}
-
-
-	/**
 	 * Removes the user from the user group.
 	 *
 	 * @param userGroupId the primary key of the user group
@@ -1921,6 +1907,19 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		reindex(userId);
 
 		PermissionCacheUtil.clearCache(userId);
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	public void deleteUserGroupUser(long userGroupId, User user)
+		throws PortalException {
+
+		userGroupPersistence.removeUser(userGroupId, user);
+
+		reindex(user);
+
+		PermissionCacheUtil.clearCache(user.getUserId());
 	}
 
 	public void deleteUserGroupUsers(long userGroupId, List<User> users)
@@ -6089,6 +6088,13 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		subscriptionSender.flushNotificationsAsync();
 	}
 
+	protected void reindex(List<User> users) throws SearchException {
+		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			User.class);
+
+		indexer.reindex(users);
+	}
+
 	protected void reindex(long userId) throws SearchException {
 		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			User.class);
@@ -6109,13 +6115,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 			users.add(user);
 		}
-
-		indexer.reindex(users);
-	}
-
-	protected void reindex(List<User> users) throws SearchException {
-		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			User.class);
 
 		indexer.reindex(users);
 	}

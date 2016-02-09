@@ -429,10 +429,10 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void deleteUserUserGroup(long userId, UserGroup userGroup)
+	public void deleteUserUserGroup(long userId, long userGroupId)
 		throws PortalException {
 
-		userPersistence.removeUserGroup(userId, userGroup);
+		userPersistence.removeUserGroup(userId, userGroupId);
 
 		reindexUser(userId);
 
@@ -440,10 +440,10 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void deleteUserUserGroup(long userId, long userGroupId)
+	public void deleteUserUserGroup(long userId, UserGroup userGroup)
 		throws PortalException {
 
-		userPersistence.removeUserGroup(userId, userGroupId);
+		userPersistence.removeUserGroup(userId, userGroup);
 
 		reindexUser(userId);
 
