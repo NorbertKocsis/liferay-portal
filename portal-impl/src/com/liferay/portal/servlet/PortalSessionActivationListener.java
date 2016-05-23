@@ -14,6 +14,7 @@
 
 package com.liferay.portal.servlet;
 
+import com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyerUtil;
 import com.liferay.portal.kernel.util.TransientValue;
 
 import java.io.Serializable;
@@ -59,11 +60,12 @@ public class PortalSessionActivationListener
 
 	@Override
 	public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {
-		new PortalSessionCreator(httpSessionEvent);
+		PortalSessionCreatorDestroyerUtil.createSession(httpSessionEvent);
 	}
 
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent httpSessionEvent) {
+		PortalSessionCreatorDestroyerUtil.destroySession(httpSessionEvent);
 	}
 
 	private static final PortalSessionActivationListener _instance =
