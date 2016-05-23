@@ -24,6 +24,10 @@
 	<bean class="com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil" id="com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil">
 		<property name="expandoBridgeIndexer" ref="com.liferay.expando.kernel.util.ExpandoBridgeIndexer" />
 	</bean>
+	<bean class="com.liferay.portal.servlet.PortalSessionCreatorDestroyerImpl" id="com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyer" />
+	<bean class="com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyerUtil" id="com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyerUtil" >
+		<property name="portalSessionCreatorDestroyer" ref="com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyer" />
+	</bean>
 	<bean class="com.liferay.mail.util.DummyHook" id="com.liferay.mail.util.DummyHook" />
 	<bean class="com.liferay.portal.convert.database.DatabaseConvertProcess" />
 	<bean class="com.liferay.portal.convert.database.PortalDatabaseConverter" >
