@@ -12,10 +12,8 @@
  * details.
  */
 
-package com.liferay.portal.servlet;
+package com.liferay.portal.kernel.servlet;
 
-import com.liferay.portal.kernel.servlet.PortalSessionContext;
-import com.liferay.portal.kernel.servlet.PortletSessionTracker;
 import com.liferay.portal.kernel.util.TransientValue;
 
 import java.io.Serializable;
@@ -26,11 +24,7 @@ import javax.servlet.http.HttpSessionEvent;
 
 /**
  * @author Alexander Chow
- * @deprecated As of 7.0.0, replaced by {@link
- *             com.liferay.portal.kernel.servlet.
- *             PortalSessionActivationListener}
  */
-@Deprecated
 public class PortalSessionActivationListener
 	implements HttpSessionActivationListener, Serializable {
 
