@@ -14,61 +14,13 @@
 
 package com.liferay.portal.servlet;
 
-import com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyerUtil;
-import com.liferay.portal.kernel.util.TransientValue;
-
-import java.io.Serializable;
-
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionActivationListener;
-import javax.servlet.http.HttpSessionEvent;
-
 /**
  * @author Alexander Chow
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.portal.kernel.servlet.
+ *             PortalSessionActivationListener}
  */
+@Deprecated
 public class PortalSessionActivationListener
-	implements HttpSessionActivationListener, Serializable {
-
-	public static PortalSessionActivationListener getInstance() {
-		return _instance;
-	}
-
-	public static PortalSessionActivationListener getInstance(
-		HttpSession session) {
-
-		TransientValue<PortalSessionActivationListener> transientValue =
-			(TransientValue<PortalSessionActivationListener>)
-				session.getAttribute(
-					PortalSessionActivationListener.class.getName());
-
-		PortalSessionActivationListener portalSessionActivationListener = null;
-
-		if (transientValue != null) {
-			portalSessionActivationListener = transientValue.getValue();
-		}
-
-		return portalSessionActivationListener;
-	}
-
-	public static void setInstance(HttpSession session) {
-		TransientValue<PortalSessionActivationListener> transientValue =
-			new TransientValue<>(PortalSessionActivationListener.getInstance());
-
-		session.setAttribute(
-			PortalSessionActivationListener.class.getName(), transientValue);
-	}
-
-	@Override
-	public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {
-		PortalSessionCreatorDestroyerUtil.createSession(httpSessionEvent);
-	}
-
-	@Override
-	public void sessionWillPassivate(HttpSessionEvent httpSessionEvent) {
-		PortalSessionCreatorDestroyerUtil.destroySession(httpSessionEvent);
-	}
-
-	private static final PortalSessionActivationListener _instance =
-		new PortalSessionActivationListener();
-
+	extends com.liferay.portal.kernel.servlet.PortalSessionActivationListener {
 }
