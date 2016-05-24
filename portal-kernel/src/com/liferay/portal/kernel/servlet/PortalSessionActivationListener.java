@@ -45,12 +45,12 @@ public class PortalSessionActivationListener
 
 	@Override
 	public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {
-		PortalSessionCreatorDestroyerUtil.createSession(httpSessionEvent);
+		PortalSessionCreatorDestroyerUtil.activateSession(httpSessionEvent);
 	}
 
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent httpSessionEvent) {
-		PortalSessionCreatorDestroyerUtil.destroySession(httpSessionEvent);
+		PortalSessionCreatorDestroyerUtil.passivateSession(httpSessionEvent);
 	}
 
 	private static final PortalSessionActivationListener _instance =
