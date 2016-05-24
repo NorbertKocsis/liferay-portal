@@ -15,6 +15,8 @@
 package com.liferay.portal.servlet;
 
 import com.liferay.portal.kernel.servlet.PortalSessionCreatorDestroyer;
+import com.liferay.portal.kernel.servlet.filters.compoundsessionid.CompoundSessionIdHttpSession;
+import com.liferay.portal.kernel.servlet.filters.compoundsessionid.CompoundSessionIdSplitterUtil;
 
 import javax.servlet.http.HttpSessionEvent;
 
@@ -32,6 +34,32 @@ public class PortalSessionCreatorDestroyerImpl
 	@Override
 	public void destroySession(HttpSessionEvent httpSessionEvent) {
 		new PortalSessionDestroyer(httpSessionEvent);
+	}
+
+	@Override
+	public void activateSession(HttpSessionEvent httpSessionEvent) {
+		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
+			CompoundSessionIdHttpSession compoundSessionIdHttpSession =
+				new CompoundSessionIdHttpSession(httpSessionEvent.getSession());
+
+			httpSessionEvent = new HttpSessionEvent(
+				compoundSessionIdHttpSession);
+		}
+
+		new PortalSessionActivator(httpSessionEvent);
+	}
+
+	@Override
+	public void passivateSession(HttpSessionEvent httpSessionEvent) {
+		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
+			CompoundSessionIdHttpSession compoundSessionIdHttpSession =
+				new CompoundSessionIdHttpSession(httpSessionEvent.getSession());
+
+			httpSessionEvent = new HttpSessionEvent(
+				compoundSessionIdHttpSession);
+		}
+
+		new PortalSessionPassivator(httpSessionEvent);
 	}
 
 }

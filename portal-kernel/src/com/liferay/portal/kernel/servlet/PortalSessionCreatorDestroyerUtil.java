@@ -31,6 +31,14 @@ public class PortalSessionCreatorDestroyerUtil {
 		getPortalSessionCreatorDestroyer().destroySession(httpSessionEvent);
 	}
 
+	public static void activateSession(HttpSessionEvent httpSessionEvent) {
+		getPortalSessionCreatorDestroyer().activateSession(httpSessionEvent);
+	}
+
+	public static void passivateSession(HttpSessionEvent httpSessionEvent) {
+		getPortalSessionCreatorDestroyer().passivateSession(httpSessionEvent);
+	}
+
 	public static PortalSessionCreatorDestroyer getPortalSessionCreatorDestroyer() {
 		PortalRuntimePermission.checkGetBeanProperty(
 			PortalSessionCreatorDestroyerUtil.class);

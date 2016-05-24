@@ -25,4 +25,8 @@ public interface PortalSessionCreatorDestroyer {
 
 	public void destroySession(HttpSessionEvent httpSessionEvent);
 
+	public void activateSession(HttpSessionEvent httpSessionEvent);
+
+	public void passivateSession(HttpSessionEvent httpSessionEvent);
+
 }
