@@ -85,6 +85,14 @@ public class PortletSessionTracker {
 		}
 	}
 
+	public static void passivate(String sessionId) {
+		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
+			sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
+		}
+
+		_sessions.remove(sessionId);
+	}
+
 	private static final ConcurrentMap<String, Map<String, HttpSession>>
 		_sessions = new ConcurrentHashMap<>();
 
