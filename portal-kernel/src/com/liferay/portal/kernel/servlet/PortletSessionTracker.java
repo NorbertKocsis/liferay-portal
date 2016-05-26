@@ -81,7 +81,7 @@ public class PortletSessionTracker {
 		}
 	}
 
-	public static void passivate(String sessionId) {
+	public static void remove(String sessionId) {
 		sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
 
 		_sessions.remove(sessionId);
