@@ -14,6 +14,8 @@
 
 package com.liferay.portal.servlet;
 
+import com.liferay.portal.kernel.servlet.PortalSessionContext;
+import com.liferay.portal.kernel.servlet.PortletSessionTracker;
 import com.liferay.portal.kernel.util.TransientValue;
 
 import java.io.Serializable;
@@ -59,11 +61,20 @@ public class PortalSessionActivationListener
 
 	@Override
 	public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {
-		new PortalSessionCreator(httpSessionEvent);
+		HttpSession session = httpSessionEvent.getSession();
+
+		PortalSessionContext.put(session.getId(), session);
+
+		PortletSessionTracker.add(session);
 	}
 
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent httpSessionEvent) {
+		HttpSession session = httpSessionEvent.getSession();
+
+		PortalSessionContext.remove(session.getId());
+
+		PortletSessionTracker.remove(session.getId());
 	}
 
 	private static final PortalSessionActivationListener _instance =
