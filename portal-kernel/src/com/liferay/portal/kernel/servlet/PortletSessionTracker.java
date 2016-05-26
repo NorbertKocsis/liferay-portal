@@ -36,9 +36,7 @@ public class PortletSessionTracker {
 	public static void add(HttpSession session) {
 		String sessionId = session.getId();
 
-		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
-			sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
-		}
+		sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
 
 		Map<String, HttpSession> sessions = _sessions.get(sessionId);
 
@@ -66,9 +64,7 @@ public class PortletSessionTracker {
 	}
 
 	public static void invalidate(String sessionId) {
-		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
-			sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
-		}
+		sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
 
 		Map<String, HttpSession> sessions = _sessions.remove(sessionId);
 
@@ -86,9 +82,7 @@ public class PortletSessionTracker {
 	}
 
 	public static void passivate(String sessionId) {
-		if (CompoundSessionIdSplitterUtil.hasSessionDelimiter()) {
-			sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
-		}
+		sessionId = CompoundSessionIdSplitterUtil.parseSessionId(sessionId);
 
 		_sessions.remove(sessionId);
 	}
