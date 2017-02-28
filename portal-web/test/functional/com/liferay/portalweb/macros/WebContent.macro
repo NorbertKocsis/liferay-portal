@@ -1569,6 +1569,18 @@
 		</for>
 	</command>
 
+	<command name="viewCompareVersions">
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute macro="LexiconEntry#gotoEntry">
+			<var name="rowEntry" value="${version}" />
+		</execute>
+
+		<execute function="SelectFrameTop" />
+
+		<execute function="AssertTextEquals" locator1="WCViewHistory#VIEW_COMPARE_VERSIONS_CONTENT" value1="${newContent}" />
+	</command>
+
 	<command name="viewConversionLinksPGViaAP">
 		<var name="key_assetTitle" value="${webContentTitle}" />
 

@@ -26,6 +26,8 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.LayoutFriendlyURLComposite;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -36,6 +38,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.PortalMessages;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.struts.LastPath;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashUtil;
@@ -278,6 +281,34 @@ public class FriendlyURLServlet extends HttpServlet {
 			sb.append("}");
 
 			throw new NoSuchGroupException(sb.toString());
+		}
+
+		String portletId = ParamUtil.getString(request, "p_p_id");
+
+		if (group.isControlPanel() && Validator.isNotNull(portletId)) {
+			PermissionChecker permissionChecker = null;
+
+			try {
+				User user = PortalUtil.getUser(request);
+
+				permissionChecker = PermissionCheckerFactoryUtil.create(user);
+			}
+			catch (Exception e) {
+				throw new PortalException(e);
+			}
+
+			ThemeDisplay themeDisplay = new ThemeDisplay();
+
+			themeDisplay.setCompany(PortalUtil.getCompany(request));
+			themeDisplay.setPermissionChecker(permissionChecker);
+			themeDisplay.setScopeGroupId(group.getGroupId());
+
+			if (!PortalUtil.isControlPanelPortlet(
+					portletId, LayoutConstants.TYPE_CONTROL_PANEL,
+					themeDisplay)) {
+
+				throw new NoSuchGroupException();
+			}
 		}
 
 		// Layout friendly URL
