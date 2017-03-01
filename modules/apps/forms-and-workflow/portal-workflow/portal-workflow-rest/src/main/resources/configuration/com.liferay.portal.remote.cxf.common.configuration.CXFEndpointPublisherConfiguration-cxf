@@ -1,0 +1,2 @@
+contextPath=/portal-workflow-rest
+authVerifierProperties=auth.verifier.BasicAuthHeaderAuthVerifier.urls.includes=*

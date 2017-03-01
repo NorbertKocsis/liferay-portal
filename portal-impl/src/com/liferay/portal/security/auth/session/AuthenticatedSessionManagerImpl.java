@@ -453,8 +453,12 @@ public class AuthenticatedSessionManagerImpl
 					parameterMap, resultsMap);
 			}
 
+			User user = (User)resultsMap.get("user");
+
 			if (authResult != Authenticator.SUCCESS) {
-				User user = UserLocalServiceUtil.fetchUser(userId);
+				if (user != null) {
+					user = UserLocalServiceUtil.fetchUser(user.getUserId());
+				}
 
 				if (user != null) {
 					UserLocalServiceUtil.checkLockout(user);
@@ -463,7 +467,7 @@ public class AuthenticatedSessionManagerImpl
 				throw new AuthException();
 			}
 
-			return (User)resultsMap.get("user");
+			return user;
 		}
 	}
 

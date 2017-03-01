@@ -17,9 +17,8 @@ package com.liferay.blogs.internal.exportimport.portlet.preferences.processor.te
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.blogs.web.constants.BlogsPortletKeys;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
-import com.liferay.exportimport.kernel.lar.PortletDataContextFactoryUtil;
-import com.liferay.exportimport.kernel.lar.UserIdStrategy;
 import com.liferay.exportimport.portlet.preferences.processor.ExportImportPortletPreferencesProcessor;
+import com.liferay.exportimport.test.util.ExportImportTestUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Organization;
@@ -34,12 +33,6 @@ import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.kernel.zip.ZipReader;
-import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -48,15 +41,7 @@ import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceTracker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.portlet.PortletPreferences;
 
@@ -122,44 +107,16 @@ public class BlogsAggregatorExportImportPortletPreferencesProcessorTest {
 
 		_organization = OrganizationTestUtil.addOrganization();
 
-		TestReaderWriter testReaderWriter = new TestReaderWriter();
-
 		_portletDataContextExport =
-			PortletDataContextFactoryUtil.createExportPortletDataContext(
-				TestPropsValues.getCompanyId(), _group.getGroupId(),
-				new HashMap<String, String[]>(), null, null, testReaderWriter);
-
-		Document document = SAXReaderUtil.createDocument();
-
-		Element manifestRootElement = document.addElement("root");
-
-		manifestRootElement.addElement("header");
-
-		testReaderWriter.addEntry("/manifest.xml", document.asXML());
-
-		Element rootElement = SAXReaderUtil.createElement("root");
-
-		_portletDataContextExport.setExportDataRootElement(rootElement);
-
-		Element missingReferencesElement = rootElement.addElement(
-			"missing-references");
-
-		_portletDataContextExport.setMissingReferencesElement(
-			missingReferencesElement);
+			ExportImportTestUtil.getExportPortletDataContext(
+				_group.getGroupId());
 
 		_portletDataContextExport.setPortletId(
 			BlogsPortletKeys.BLOGS_AGGREGATOR);
 
 		_portletDataContextImport =
-			PortletDataContextFactoryUtil.createImportPortletDataContext(
-				TestPropsValues.getCompanyId(), _group.getGroupId(),
-				new HashMap<String, String[]>(), new DummyUserIdStrategy(),
-				testReaderWriter);
-
-		_portletDataContextImport.setImportDataRootElement(rootElement);
-
-		_portletDataContextImport.setMissingReferencesElement(
-			missingReferencesElement);
+			ExportImportTestUtil.getImportPortletDataContext(
+				_group.getGroupId());
 
 		_portletDataContextImport.setPortletId(
 			BlogsPortletKeys.BLOGS_AGGREGATOR);
@@ -233,88 +190,5 @@ public class BlogsAggregatorExportImportPortletPreferencesProcessorTest {
 
 	private PortletDataContext _portletDataContextExport;
 	private PortletDataContext _portletDataContextImport;
-
-	private class DummyUserIdStrategy implements UserIdStrategy {
-
-		@Override
-		public long getUserId(String s) {
-			try {
-				return TestPropsValues.getUserId();
-			}
-			catch (Exception e) {
-				return 0;
-			}
-		}
-
-	}
-
-	private class TestReaderWriter implements ZipReader, ZipWriter {
-
-		@Override
-		public void addEntry(String name, byte[] bytes) throws IOException {
-		}
-
-		@Override
-		public void addEntry(String name, InputStream inputStream)
-			throws IOException {
-		}
-
-		@Override
-		public void addEntry(String name, String s) throws IOException {
-			_entries.put(name, s);
-		}
-
-		@Override
-		public void addEntry(String name, StringBuilder sb) throws IOException {
-			_entries.put(name, sb.toString());
-		}
-
-		@Override
-		public void close() {
-		}
-
-		@Override
-		public byte[] finish() throws IOException {
-			return new byte[0];
-		}
-
-		@Override
-		public List<String> getEntries() {
-			return new ArrayList<>(_entries.keySet());
-		}
-
-		@Override
-		public byte[] getEntryAsByteArray(String name) {
-			return new byte[0];
-		}
-
-		@Override
-		public InputStream getEntryAsInputStream(String name) {
-			return null;
-		}
-
-		@Override
-		public String getEntryAsString(String name) {
-			return _entries.get(name);
-		}
-
-		@Override
-		public File getFile() {
-			return null;
-		}
-
-		@Override
-		public List<String> getFolderEntries(String name) {
-			return Collections.emptyList();
-		}
-
-		@Override
-		public String getPath() {
-			return StringPool.BLANK;
-		}
-
-		private final Map<String, String> _entries = new HashMap<>();
-
-	}
 
 }

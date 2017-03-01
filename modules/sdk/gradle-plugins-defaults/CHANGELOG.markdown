@@ -1091,6 +1091,59 @@ project with the `install` and `uploadArchives` tasks.
 ### Changed
 - [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.7.
 
+## 3.0.0 - 2017-02-23
+
+### Changed
+- [LPS-63943]: Refactor the `PrintArtifactPublishCommandsTask` class and rename
+it to `WriteArtifactPublishCommandsTask`. Executing
+`gradlew writeArtifactPublishCommands` in a parent directory generates the file
+`build/artifacts-publish-commands/artifacts-publish-commands.sh` with the
+following commands for all publishable subprojects:
+	- `gradlew baseline` (failing when semantic versioning errors are detected).
+	- `gradlew baseline` (ignoring semantic versioning errors) and Git commands
+	to commit the files modified by the `baseline` task.
+	- the publish commands returned by the previous version of the plugin.
+- [LPS-63943]: Rename the `printArtifactPublishCommands` task to
+`writeArtifactPublishCommands`.
+
+## 3.1.0 - 2017-02-23
+
+### Added
+- [LPS-70819]: Set the `jsp.precompile.from.source` project property to `false`
+to make the `compileJSP` task download the archive listed in the
+`artifact.jspc.url` artifact property instead of compiling the JSP pages of the
+OSGi project.
+
+### Changed
+- [LPS-70870]: Update the [Liferay Gradle Plugins] dependency to version 3.2.8.
+
+## 3.1.1 - 2017-02-24
+
+### Changed
+- [LPS-70170]: Change dependency replacements in the `jspC` configuration:
+	- always use the deployed `util-taglib.jar` file; fail if not found.
+	- substitute module taglib dependencies with project dependencies if found,
+	falling back to the deployed JAR file; fail if neither the project or the
+	deployed JAR file are found.
+
+## 3.1.2 - 2017-02-25
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.9.
+
+## 3.1.3 - 2017-02-27
+
+### Changed
+- [LPS-70170]: Lower log level of `jspC` configuration dependency replacement
+messages if the `compileJSP` is not explicitly invoked.
+
+## 3.1.4 - 2017-02-28
+
+### Changed
+- [LPS-70929]: Disable `-check: exports` if the `bnd.bnd` file contains the
+`-exportcontents` instruction.
+- [LPS-70941]: Update the [Liferay Gradle Plugins] dependency to version 3.2.10.
+
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
 [Liferay Gradle Plugins App Javadoc Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-app-javadoc-builder
@@ -1102,6 +1155,7 @@ project with the `install` and `uploadArchives` tasks.
 [LPS-58672]: https://issues.liferay.com/browse/LPS-58672
 [LPS-61099]: https://issues.liferay.com/browse/LPS-61099
 [LPS-61987]: https://issues.liferay.com/browse/LPS-61987
+[LPS-63943]: https://issues.liferay.com/browse/LPS-63943
 [LPS-65179]: https://issues.liferay.com/browse/LPS-65179
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
 [LPS-66762]: https://issues.liferay.com/browse/LPS-66762
@@ -1198,6 +1252,9 @@ project with the `install` and `uploadArchives` tasks.
 [LPS-70699]: https://issues.liferay.com/browse/LPS-70699
 [LPS-70707]: https://issues.liferay.com/browse/LPS-70707
 [LPS-70819]: https://issues.liferay.com/browse/LPS-70819
+[LPS-70870]: https://issues.liferay.com/browse/LPS-70870
+[LPS-70929]: https://issues.liferay.com/browse/LPS-70929
+[LPS-70941]: https://issues.liferay.com/browse/LPS-70941
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981

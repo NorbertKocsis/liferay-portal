@@ -34,12 +34,16 @@ import com.liferay.portal.tools.ToolsUtil;
 import com.liferay.portal.xml.SAXReaderFactory;
 import com.liferay.source.formatter.util.FileUtil;
 
+import java.awt.Desktop;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import java.lang.reflect.Field;
+
+import java.net.URI;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
@@ -93,6 +97,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	@Override
 	public final void format() throws Exception {
+		if (sourceFormatterArgs.isShowDocumentation()) {
+			System.setProperty("java.awt.headless", "false");
+		}
+
 		List<String> fileNames = getFileNames();
 
 		if (fileNames.isEmpty()) {
@@ -185,6 +193,21 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	@Override
 	public void processMessage(String fileName, String message, int lineCount) {
+		processMessage(fileName, message, null, lineCount);
+	}
+
+	@Override
+	public void processMessage(
+		String fileName, String message, String markdownFileName) {
+
+		processMessage(fileName, message, markdownFileName, -1);
+	}
+
+	@Override
+	public void processMessage(
+		String fileName, String message, String markdownFileName,
+		int lineCount) {
+
 		Set<SourceFormatterMessage> sourceFormatterMessages =
 			_sourceFormatterMessagesMap.get(fileName);
 
@@ -193,7 +216,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		sourceFormatterMessages.add(
-			new SourceFormatterMessage(fileName, message, lineCount));
+			new SourceFormatterMessage(
+				fileName, message, markdownFileName, lineCount));
 
 		_sourceFormatterMessagesMap.put(fileName, sourceFormatterMessages);
 	}
@@ -966,6 +990,30 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 				}
 			}
 			else if (lineBreaks.equals("\n")) {
+				return StringUtil.replaceFirst(
+					content, "\n", "\n\n", matcher.end(1));
+			}
+		}
+
+		matcher = _missingEmptyLineBetweenTagsPattern1.matcher(content);
+
+		while (matcher.find()) {
+			String tabs1 = matcher.group(1);
+			String tabs2 = matcher.group(2);
+
+			if (tabs1.equals(tabs2)) {
+				return StringUtil.replaceFirst(
+					content, "\n", "\n\n", matcher.end(1));
+			}
+		}
+
+		matcher = _missingEmptyLineBetweenTagsPattern2.matcher(content);
+
+		while (matcher.find()) {
+			String tabs1 = matcher.group(1);
+			String tabs2 = matcher.group(2);
+
+			if (tabs1.equals(tabs2)) {
 				return StringUtil.replaceFirst(
 					content, "\n", "\n\n", matcher.end(1));
 			}
@@ -2747,7 +2795,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	protected void processFormattedFile(
 			File file, String fileName, String content, String newContent)
-		throws IOException {
+		throws Exception {
 
 		if (!content.equals(newContent)) {
 			if (sourceFormatterArgs.isPrintErrors()) {
@@ -2773,6 +2821,24 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 					_sourceFormatterHelper.printError(
 						fileName, sourceFormatterMessage.toString());
+
+					if (_browserStarted ||
+						!sourceFormatterArgs.isShowDocumentation()) {
+
+						continue;
+					}
+
+					String markdownFileName =
+						sourceFormatterMessage.getMarkdownFileName();
+
+					if (Validator.isNotNull(markdownFileName)) {
+						Desktop desktop = Desktop.getDesktop();
+
+						desktop.browse(
+							new URI(_DOCUMENTATION_URL + markdownFileName));
+
+						_browserStarted = true;
+					}
 				}
 			}
 		}
@@ -3228,15 +3294,20 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return pattern;
 	}
 
+	private static final String _DOCUMENTATION_URL =
+		"https://github.com/liferay/liferay-portal/blob/master/modules/util" +
+			"/source-formatter/documentation/";
+
 	private Set<String> _annotationsExclusions;
 	private Map<String, BNDSettings> _bndSettingsMap =
 		new ConcurrentHashMap<>();
+	private boolean _browserStarted;
 	private Map<String, String> _compatClassNamesMap;
 	private String _copyright;
 	private final Pattern _definitionPattern = Pattern.compile(
 		"^([A-Za-z-]+?)[:=](\n|[\\s\\S]*?([^\\\\]\n|\\Z))", Pattern.MULTILINE);
 	private final Pattern _emptyLineBetweenTagsPattern = Pattern.compile(
-		"\n(\t*)</([-\\w:]+)>(\n*)(\t*)<([-\\w:]+)[> ]");
+		"\n(\t*)</([-\\w:]+)>(\n*)(\t*)<([-\\w:]+)[> \n]");
 	private final Pattern _emptyLineInNestedTagsPattern1 = Pattern.compile(
 		"\n(\t*)(?:<\\w.*[^/])?>\n\n(\t*)(<.*)\n");
 	private final Pattern _emptyLineInNestedTagsPattern2 = Pattern.compile(
@@ -3246,6 +3317,11 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	private SourceMismatchException _firstSourceMismatchException;
 	private Set<String> _immutableFieldTypes;
 	private ComparableVersion _mainReleaseComparableVersion;
+	private final Pattern _missingEmptyLineBetweenTagsPattern1 =
+		Pattern.compile("\n(\t*)/>\n(\t*)<[-\\w:]+[> \n]");
+	private final Pattern _missingEmptyLineBetweenTagsPattern2 =
+		Pattern.compile(
+			"\n(\t*)<.* />\n(\t*)<([-\\w:]+|\\w((?!</| />).)*[^/]>)\n");
 	private final List<String> _modifiedFileNames =
 		new CopyOnWriteArrayList<>();
 	private final Map<String, Properties> _moduleLangLanguageProperties =
