@@ -139,12 +139,8 @@ public class PortalLDAPUtil {
 			companyId, ldapContext, baseDN, filter, attribute);
 	}
 
-	public static String getNameInNamespace(
-			long ldapServerId, long companyId, Binding binding)
-		throws Exception {
-
-		return getInstance().getNameInNamespace(
-			ldapServerId, companyId, binding);
+	public static String getNameInNamespace(Binding binding) throws Exception {
+		return getInstance().getNameInNamespace(binding);
 	}
 
 	public static Binding getUser(

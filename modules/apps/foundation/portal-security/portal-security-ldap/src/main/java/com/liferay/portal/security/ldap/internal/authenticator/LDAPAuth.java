@@ -312,8 +312,7 @@ public class LDAPAuth implements Authenticator {
 
 			SearchResult result = enu.nextElement();
 
-			String fullUserDN = _portalLDAP.getNameInNamespace(
-				ldapServerId, companyId, result);
+			String fullUserDN = _portalLDAP.getNameInNamespace(result);
 
 			Attributes attributes = _portalLDAP.getUserAttributes(
 				ldapServerId, companyId, ldapContext, fullUserDN);
