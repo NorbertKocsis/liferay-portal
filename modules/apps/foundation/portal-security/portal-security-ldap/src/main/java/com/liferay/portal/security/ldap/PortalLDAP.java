@@ -83,9 +83,7 @@ public interface PortalLDAP {
 			String filter, Attribute attribute)
 		throws Exception;
 
-	public String getNameInNamespace(
-			long ldapServerId, long companyId, Binding binding)
-		throws Exception;
+	public String getNameInNamespace(Binding binding) throws Exception;
 
 	public Binding getUser(
 			long ldapServerId, long companyId, String screenName,

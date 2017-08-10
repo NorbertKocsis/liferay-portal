@@ -472,30 +472,8 @@ public class DefaultPortalLDAP implements PortalLDAP {
 	}
 
 	@Override
-	public String getNameInNamespace(
-			long ldapServerId, long companyId, Binding binding)
-		throws Exception {
-
-		LDAPServerConfiguration ldapServerConfiguration =
-			_ldapServerConfigurationProvider.getConfiguration(
-				companyId, ldapServerId);
-
-		String baseDN = ldapServerConfiguration.baseDN();
-
-		String name = binding.getName();
-
-		if (name.startsWith(StringPool.QUOTE) &&
-			name.endsWith(StringPool.QUOTE)) {
-
-			name = name.substring(1, name.length() - 1);
-		}
-
-		if (Validator.isNull(baseDN)) {
-			return name;
-		}
-		else {
-			return name.concat(StringPool.COMMA).concat(baseDN);
-		}
+	public String getNameInNamespace(Binding binding) throws Exception {
+		return binding.getNameInNamespace();
 	}
 
 	@Override
