@@ -472,6 +472,10 @@ public class DefaultPortalLDAP implements PortalLDAP {
 		return attribute;
 	}
 
+	/**
+	 * @deprecated As of 2.2.0
+	 */
+	@Deprecated
 	@Override
 	public String getNameInNamespace(
 			long ldapServerId, long companyId, Binding binding)
