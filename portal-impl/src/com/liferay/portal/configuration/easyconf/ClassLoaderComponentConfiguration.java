@@ -17,7 +17,6 @@ package com.liferay.portal.configuration.easyconf;
 import com.germinus.easyconf.AggregatedProperties;
 import com.germinus.easyconf.ComponentConfiguration;
 import com.germinus.easyconf.ComponentProperties;
-import com.germinus.easyconf.ConfigurationNotFoundException;
 import com.germinus.easyconf.Conventions;
 
 import com.liferay.portal.kernel.exception.LoggedExceptionInInitializerError;
@@ -86,14 +85,7 @@ public class ClassLoaderComponentConfiguration extends ComponentConfiguration {
 
 	@Override
 	public ComponentProperties getProperties() {
-		ComponentProperties componentProperties = _getAvailableProperties();
-
-		if (!componentProperties.hasBaseConfiguration()) {
-			throw new ConfigurationNotFoundException(
-				_componentName, "The base properties file was not found");
-		}
-
-		return componentProperties;
+		return _getAvailableProperties();
 	}
 
 	@Override
