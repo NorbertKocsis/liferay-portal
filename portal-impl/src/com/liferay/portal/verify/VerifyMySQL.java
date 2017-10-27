@@ -91,44 +91,52 @@ public class VerifyMySQL extends VerifyProcess {
 	protected void verifyDatetimePrecisionForTable(
 			DatabaseMetaData databaseMetaData, Statement statement,
 			String catalog, String schemaPattern, String tableName)
-		throws SQLException {
+		throws Exception {
 
-		try (ResultSet rs = databaseMetaData.getColumns(
-				catalog, schemaPattern, tableName, null)) {
+		if(isPortalTableName(tableName))
+		{
+			try(ResultSet rs = databaseMetaData.getColumns(
+				catalog, schemaPattern, tableName, null ))
+			{
 
-			while (rs.next()) {
-				if (Types.TIMESTAMP != rs.getInt("DATA_TYPE")) {
-					continue;
+				while( rs.next() )
+				{
+					if( Types.TIMESTAMP != rs.getInt( "DATA_TYPE" ) )
+					{
+						continue;
+					}
+
+					String columnName = rs.getString( "COLUMN_NAME" );
+
+					String actualColumnType =
+						getActualColumnType( statement, tableName, columnName );
+
+					if( actualColumnType.equals( "datetime(6)" ) )
+					{
+						continue;
+					}
+
+					StringBundler sb = new StringBundler( 5 );
+
+					sb.append( "ALTER TABLE " );
+					sb.append( tableName );
+					sb.append( " MODIFY " );
+					sb.append( columnName );
+					sb.append( " datetime(6)" );
+
+					String sql = sb.toString();
+
+					if( _log.isInfoEnabled() )
+					{
+						_log.info(
+							StringBundler.concat(
+								"Updating table ", tableName, " column ",
+								columnName, " to datetime(6)" ) );
+					}
+
+					statement.executeUpdate( sql );
 				}
-
-				String columnName = rs.getString("COLUMN_NAME");
-
-				String actualColumnType = getActualColumnType(
-					statement, tableName, columnName);
-
-				if (actualColumnType.equals("datetime(6)")) {
-					continue;
-				}
-
-				StringBundler sb = new StringBundler(5);
-
-				sb.append("ALTER TABLE ");
-				sb.append(tableName);
-				sb.append(" MODIFY ");
-				sb.append(columnName);
-				sb.append(" datetime(6)");
-
-				String sql = sb.toString();
-
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						StringBundler.concat(
-							"Updating table ", tableName, " column ",
-							columnName, " to datetime(6)"));
-				}
-
-				statement.executeUpdate(sql);
-			}
+			} 
 		}
 	}
 
