@@ -268,9 +268,10 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 		String fileExtensionsString = ".jpg";
 
 		DLFileEntry dlFileEntry = addDLFileEntry();
+		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
 		DLFileVersionLocalServiceUtil.deleteDLFileVersion(
-			dlFileEntry.getFileVersion().getFileVersionId());
+			dlFileVersion.getFileVersionId());
 
 		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
 				_getConfigurationTemporarySwapper(
