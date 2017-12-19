@@ -16,6 +16,7 @@ package com.liferay.document.library.verify.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
@@ -27,6 +28,7 @@ import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLTrashServiceUtil;
 import com.liferay.document.library.kernel.util.DLValidator;
@@ -267,10 +269,8 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 
 		DLFileEntry dlFileEntry = addDLFileEntry();
 
-		DLFileEntryLocalServiceUtil.deleteFileVersion(
-			dlFileEntry.getUserId(),
-			dlFileEntry.getFileEntryId(),
-			String.valueOf(dlFileEntry.getFileVersion().getVersion()));
+		DLFileVersionLocalServiceUtil.deleteDLFileVersion(
+			dlFileEntry.getFileVersion().getFileVersionId());
 
 		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
 				_getConfigurationTemporarySwapper(
@@ -529,7 +529,7 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 		return new ConfigurationTemporarySwapper(
 			DLValidator.class, _DL_CONFIGURATION_PID, dictionary);
 	}
-	
+
 	private static final String _DL_CONFIGURATION_PID =
 		"com.liferay.document.library.configuration.DLConfiguration";
 
