@@ -2391,6 +2391,7 @@ public class HookHotDeployListener
 		"journal.article.form.add", "journal.article.form.translate",
 		"journal.article.form.update", "layout.form.add", "layout.form.update",
 		"layout.set.form.update", "layout.static.portlets.all",
+		"login.events.post", "login.events.pre",
 		"login.form.navigation.post", "login.form.navigation.pre",
 		"organizations.form.add.identification", "organizations.form.add.main",
 		"organizations.form.add.miscellaneous",
