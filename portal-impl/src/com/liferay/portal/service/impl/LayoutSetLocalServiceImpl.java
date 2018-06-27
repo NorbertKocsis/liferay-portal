@@ -22,6 +22,8 @@ import com.liferay.portal.kernel.exception.NoSuchImageException;
 import com.liferay.portal.kernel.exception.NoSuchVirtualHostException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.increment.BufferedIncrement;
+import com.liferay.portal.kernel.increment.NumberIncrement;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -209,6 +211,23 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 
 		return layoutSetPersistence.findByLayoutSetPrototypeUuid(
 			layoutSetPrototypeUuid);
+	}
+
+	@BufferedIncrement(
+		configuration = "LayoutSet", incrementClass = NumberIncrement.class
+	)
+	@Override
+	public void incrementPageCount(
+			long groupId, boolean privateLayout, int increment)
+		throws PortalException {
+
+		LayoutSet layoutSet = layoutSetPersistence.findByG_P(
+			groupId, privateLayout);
+
+		layoutSet.setModifiedDate(new Date());
+		layoutSet.setPageCount(layoutSet.getPageCount() + increment);
+
+		layoutSetPersistence.update(layoutSet);
 	}
 
 	/**

@@ -334,7 +334,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		// Layout set
 
-		layoutSetLocalService.updatePageCount(groupId, privateLayout);
+		layoutSetLocalService.incrementPageCount(groupId, privateLayout, 1);
 
 		layout.setLayoutSet(null);
 
@@ -552,8 +552,8 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		// Layout set
 
 		if (updateLayoutSet) {
-			layoutSetLocalService.updatePageCount(
-				layout.getGroupId(), layout.isPrivateLayout());
+			layoutSetLocalService.incrementPageCount(
+				layout.getGroupId(), layout.isPrivateLayout(), -1);
 		}
 
 		// System event
@@ -652,6 +652,15 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		for (Layout layout : layouts) {
 			try {
 				layoutLocalService.deleteLayout(layout, false, serviceContext);
+
+				// Layout set
+
+				if (GetterUtil.getBoolean(
+					serviceContext.getAttribute("updatePageCount"), true)) {
+
+					layoutSetLocalService.incrementPageCount(
+						groupId, privateLayout, -1);
+				}
 			}
 			catch (NoSuchLayoutException nsle) {
 
@@ -661,14 +670,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 					_log.debug(nsle, nsle);
 				}
 			}
-		}
-
-		// Layout set
-
-		if (GetterUtil.getBoolean(
-				serviceContext.getAttribute("updatePageCount"), true)) {
-
-			layoutSetLocalService.updatePageCount(groupId, privateLayout);
 		}
 
 		// Counter
