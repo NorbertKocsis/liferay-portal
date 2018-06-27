@@ -286,6 +286,12 @@ public class LayoutSetLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static void incrementPageCount(long groupId, boolean privateLayout,
+		int increment)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().incrementPageCount(groupId, privateLayout, increment);
+	}
+
 	/**
 	* Updates the layout set in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*

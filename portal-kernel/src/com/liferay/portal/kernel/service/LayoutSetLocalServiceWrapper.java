@@ -304,6 +304,14 @@ public class LayoutSetLocalServiceWrapper implements LayoutSetLocalService,
 		return _layoutSetLocalService.getPersistedModel(primaryKeyObj);
 	}
 
+	@Override
+	public void incrementPageCount(long groupId, boolean privateLayout,
+		int increment)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_layoutSetLocalService.incrementPageCount(groupId, privateLayout,
+			increment);
+	}
+
 	/**
 	* Updates the layout set in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
