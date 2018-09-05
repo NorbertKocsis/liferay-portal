@@ -87,38 +87,11 @@ public class UpgradeSocial extends UpgradeProcess {
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement.
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
 	 */
 	@Deprecated
 	protected int getCounterIncrement() throws Exception {
 		return (int)_getCounterIncrement();
-	}
-
-	private long _getCounterIncrement() throws Exception {
-		try (PreparedStatement ps1 = connection.prepareStatement(
-				"select currentId from Counter where name = ?")) {
-
-			ps1.setString(1, Counter.class.getName());
-
-			long counter = 0;
-
-			try (ResultSet rs = ps1.executeQuery()) {
-				if (rs.next()) {
-					counter = rs.getLong("currentId");
-				}
-			}
-
-			PreparedStatement ps2 = connection.prepareStatement(
-				"select max(activitySetId) from SocialActivitySet");
-
-			try (ResultSet rs = ps2.executeQuery()) {
-				if (rs.next()) {
-					return rs.getLong(1) - counter;
-				}
-
-				return 0;
-			}
-		}
 	}
 
 	protected long getDelta(long increment) throws Exception {
@@ -158,6 +131,33 @@ public class UpgradeSocial extends UpgradeProcess {
 			ps.setLong(1, delta);
 
 			ps.execute();
+		}
+	}
+
+	private long _getCounterIncrement() throws Exception {
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				"select currentId from Counter where name = ?")) {
+
+			ps1.setString(1, Counter.class.getName());
+
+			long counter = 0;
+
+			try (ResultSet rs = ps1.executeQuery()) {
+				if (rs.next()) {
+					counter = rs.getLong("currentId");
+				}
+			}
+
+			PreparedStatement ps2 = connection.prepareStatement(
+				"select max(activitySetId) from SocialActivitySet");
+
+			try (ResultSet rs = ps2.executeQuery()) {
+				if (rs.next()) {
+					return rs.getLong(1) - counter;
+				}
+
+				return 0;
+			}
 		}
 	}
 
