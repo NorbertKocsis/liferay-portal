@@ -73,20 +73,38 @@ public class UpgradeSocial extends UpgradeProcess {
 
 		updateSocialActivities(delta);
 
-		increment(Counter.class.getName(), getCounterIncrement());
+		long counterIncrement = _getCounterIncrement();
+
+		while (counterIncrement > Integer.MAX_VALUE) {
+			increment(Counter.class.getName(), Integer.MAX_VALUE);
+
+			counterIncrement -= Integer.MAX_VALUE;
+		}
+
+		if (counterIncrement > 0) {
+			increment(Counter.class.getName(), (int)counterIncrement);
+		}
 	}
 
+	/**
+	 * @deprecated As of Judson (7.1.x), with no direct replacement.
+	 */
+	@Deprecated
 	protected int getCounterIncrement() throws Exception {
+		return (int)_getCounterIncrement();
+	}
+
+	private long _getCounterIncrement() throws Exception {
 		try (PreparedStatement ps1 = connection.prepareStatement(
 				"select currentId from Counter where name = ?")) {
 
 			ps1.setString(1, Counter.class.getName());
 
-			int counter = 0;
+			long counter = 0;
 
 			try (ResultSet rs = ps1.executeQuery()) {
 				if (rs.next()) {
-					counter = rs.getInt("currentId");
+					counter = rs.getLong("currentId");
 				}
 			}
 
@@ -95,7 +113,7 @@ public class UpgradeSocial extends UpgradeProcess {
 
 			try (ResultSet rs = ps2.executeQuery()) {
 				if (rs.next()) {
-					return rs.getInt(1) - counter;
+					return rs.getLong(1) - counter;
 				}
 
 				return 0;
