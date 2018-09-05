@@ -153,7 +153,7 @@ public class UpgradeSocial extends UpgradeProcess {
 
 			try (ResultSet rs = ps2.executeQuery()) {
 				if (rs.next()) {
-					return rs.getLong(1) - counter;
+					return Math.max(0, rs.getLong(1) - counter);
 				}
 
 				return 0;
