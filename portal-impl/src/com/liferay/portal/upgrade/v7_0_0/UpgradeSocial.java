@@ -77,6 +77,26 @@ public class UpgradeSocial extends UpgradeProcess {
 		incrementCounter();
 	}
 
+	protected void incrementCounter() throws Exception {
+		try (PreparedStatement ps = connection.prepareStatement(
+			"select max(activitySetId) from SocialActivitySet");
+			 ResultSet rs = ps.executeQuery();) {
+
+			if (rs.next()) {
+				Counter counter = CounterLocalServiceUtil.getCounter(
+					Counter.class.getName());
+
+				long lastSocialActivitySetId = rs.getLong(1);
+
+				if (counter.getCurrentId() < lastSocialActivitySetId) {
+					counter.setCurrentId(rs.getLong(1));
+
+					CounterLocalServiceUtil.updateCounter(counter);
+				}
+			}
+		}
+	}
+
 	protected long getDelta(long increment) throws Exception {
 		try (Statement s = connection.createStatement()) {
 			try (ResultSet rs = s.executeQuery(
@@ -103,26 +123,6 @@ public class UpgradeSocial extends UpgradeProcess {
 				}
 
 				return 0;
-			}
-		}
-	}
-
-	protected void incrementCounter() throws Exception {
-		try (PreparedStatement ps = connection.prepareStatement(
-			"select max(activitySetId) from SocialActivitySet");
-			 ResultSet rs = ps.executeQuery();) {
-
-			if (rs.next()) {
-				Counter counter = CounterLocalServiceUtil.getCounter(
-					Counter.class.getName());
-
-				long lastSocialActivitySetId = rs.getLong(1);
-
-				if (counter.getCurrentId() < lastSocialActivitySetId) {
-					counter.setCurrentId(rs.getLong(1));
-
-					CounterLocalServiceUtil.updateCounter(counter);
-				}
 			}
 		}
 	}
