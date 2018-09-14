@@ -47,16 +47,7 @@ public class NamedConfigurationPathContentFactory
 
 		return ListUtil.fromEnumeration(
 			new MappingEnumeration<>(
-				entries,
-				new MappingEnumeration.Mapper
-					<URL, NamedConfigurationContent>() {
-
-					@Override
-					public NamedConfigurationContent map(URL url) {
-						return new URLNamedConfigurationContent(url);
-					}
-
-				}));
+				entries, URLNamedConfigurationContent::new));
 	}
 
 }
