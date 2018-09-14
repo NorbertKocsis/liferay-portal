@@ -43,20 +43,11 @@ public class NamedConfigurationPathContentFactory
 		}
 
 		final Enumeration<URL> entries = bundleStorage.findEntries(
-			configurationPath, "*.properties", true);
+			configurationPath, "*", true);
 
 		return ListUtil.fromEnumeration(
 			new MappingEnumeration<>(
-				entries,
-				new MappingEnumeration.Mapper
-					<URL, NamedConfigurationContent>() {
-
-					@Override
-					public NamedConfigurationContent map(URL url) {
-						return new PropertiesFileNamedConfigurationContent(url);
-					}
-
-				}));
+				entries, URLNamedConfigurationContent::new));
 	}
 
 }
