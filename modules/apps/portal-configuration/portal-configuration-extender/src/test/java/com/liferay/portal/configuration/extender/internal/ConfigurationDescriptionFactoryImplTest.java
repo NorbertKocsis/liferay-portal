@@ -14,14 +14,13 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
-import com.liferay.portal.kernel.util.Supplier;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import java.nio.charset.Charset;
 
 import java.util.Dictionary;
+import java.util.function.Supplier;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,14 +33,51 @@ public class ConfigurationDescriptionFactoryImplTest {
 	@Test
 	public void testCreateFactoryConfiguration() {
 		ConfigurationDescriptionFactory configurationDescriptionFactory =
-			new ConfigurationDescriptionFactoryImpl();
+			_getConfigurationDescriptionFactory();
 
 		String configurationContent = "key=value\nanotherKey=anotherValue";
 
 		ConfigurationDescription configurationDescription =
 			configurationDescriptionFactory.create(
-				new PropertiesFileNamedConfigurationContent(
-					"factory.pid-config.pid",
+				new URLNamedConfigurationContent(
+					"factory.pid-config.pid", "properties",
+					new ByteArrayInputStream(
+						configurationContent.getBytes(
+							Charset.forName("UTF-8")))));
+
+		Assert.assertTrue(
+			configurationDescription instanceof
+				FactoryConfigurationDescription);
+
+		FactoryConfigurationDescription factoryConfigurationDescription =
+			(FactoryConfigurationDescription)configurationDescription;
+
+		Assert.assertEquals(
+			"factory.pid", factoryConfigurationDescription.getFactoryPid());
+		Assert.assertEquals(
+			"config.pid", factoryConfigurationDescription.getPid());
+
+		Supplier<Dictionary<String, Object>> propertiesSupplier =
+			factoryConfigurationDescription.getPropertiesSupplier();
+
+		Dictionary<String, Object> properties = propertiesSupplier.get();
+
+		Assert.assertEquals("value", properties.get("key"));
+		Assert.assertEquals("anotherValue", properties.get("anotherKey"));
+	}
+
+	@Test
+	public void testCreateFactoryConfigurationWithConfigContent() {
+		ConfigurationDescriptionFactory configurationDescriptionFactory =
+			_getConfigurationDescriptionFactory();
+
+		String configurationContent =
+			"key=\"value\"\nanotherKey=\"anotherValue\"";
+
+		ConfigurationDescription configurationDescription =
+			configurationDescriptionFactory.create(
+				new URLNamedConfigurationContent(
+					"factory.pid-config.pid", "config",
 					new ByteArrayInputStream(
 						configurationContent.getBytes(
 							Charset.forName("UTF-8")))));
@@ -70,7 +106,7 @@ public class ConfigurationDescriptionFactoryImplTest {
 	@Test
 	public void testCreateReturnsNullWhenNotPropertiesFileNamedConfigurationContent() {
 		ConfigurationDescriptionFactory configurationDescriptionFactory =
-			new ConfigurationDescriptionFactoryImpl();
+			_getConfigurationDescriptionFactory();
 
 		ConfigurationDescription configurationDescription =
 			configurationDescriptionFactory.create(
@@ -94,14 +130,14 @@ public class ConfigurationDescriptionFactoryImplTest {
 	@Test
 	public void testCreateSingleConfiguration() {
 		ConfigurationDescriptionFactory configurationDescriptionFactory =
-			new ConfigurationDescriptionFactoryImpl();
+			_getConfigurationDescriptionFactory();
 
 		String configurationContent = "key=value\nanotherKey=anotherValue";
 
 		ConfigurationDescription configurationDescription =
 			configurationDescriptionFactory.create(
-				new PropertiesFileNamedConfigurationContent(
-					"config.pid",
+				new URLNamedConfigurationContent(
+					"config.pid", "properties",
 					new ByteArrayInputStream(
 						configurationContent.getBytes(
 							Charset.forName("UTF-8")))));
@@ -122,6 +158,64 @@ public class ConfigurationDescriptionFactoryImplTest {
 
 		Assert.assertEquals("value", properties.get("key"));
 		Assert.assertEquals("anotherValue", properties.get("anotherKey"));
+	}
+
+	@Test
+	public void testCreateSingleConfigurationWithConfigContent() {
+		ConfigurationDescriptionFactory configurationDescriptionFactory =
+			_getConfigurationDescriptionFactory();
+
+		String configurationContent =
+			"key=\"value\"\nanotherKey=\"anotherValue\"";
+
+		ConfigurationDescription configurationDescription =
+			configurationDescriptionFactory.create(
+				new URLNamedConfigurationContent(
+					"config.pid", "config",
+					new ByteArrayInputStream(
+						configurationContent.getBytes(
+							Charset.forName("UTF-8")))));
+
+		Assert.assertTrue(
+			configurationDescription instanceof SingleConfigurationDescription);
+
+		SingleConfigurationDescription singleConfigurationDescription =
+			(SingleConfigurationDescription)configurationDescription;
+
+		Assert.assertEquals(
+			"config.pid", singleConfigurationDescription.getPid());
+
+		Supplier<Dictionary<String, Object>> propertiesSupplier =
+			singleConfigurationDescription.getPropertiesSupplier();
+
+		Dictionary<String, Object> properties = propertiesSupplier.get();
+
+		Assert.assertEquals("value", properties.get("key"));
+		Assert.assertEquals("anotherValue", properties.get("anotherKey"));
+	}
+
+	private ConfigurationDescriptionFactory
+		_getConfigurationDescriptionFactory() {
+
+		return new ConfigurationDescriptionFactoryImpl() {
+
+			@Override
+			protected ConfigurationContentSupplierFactory
+				getConfigurationContentSupplierFactory(String type) {
+
+				if (type.equals("properties")) {
+					return new PropertiesConfigurationContentSupplierFactory();
+				}
+				else if (type.equals("config")) {
+					return new ConfigConfigurationContentSupplierFactory();
+				}
+				else {
+					throw new IllegalArgumentException(
+						type + " is wrong in this test");
+				}
+			}
+
+		};
 	}
 
 }
