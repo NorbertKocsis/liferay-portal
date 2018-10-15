@@ -14,18 +14,38 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
+import com.liferay.portal.kernel.util.PropertiesUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import java.util.Dictionary;
 import java.util.function.Supplier;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Carlos Sierra Andrés
  */
-public interface ConfigurationDescription {
+@Component(property = "type=properties")
+public class PropertiesConfigurationContentSupplierFactory
+	implements ConfigurationContentSupplierFactory {
 
-	public String getFactoryPid();
+	@Override
+	public Supplier<Dictionary<String, Object>> create(
+		InputStream inputStream) {
 
-	public String getPid();
+		return () -> {
+			try {
+				Dictionary<?, ?> properties = PropertiesUtil.load(
+					inputStream, "UTF-8");
 
-	public Supplier<Dictionary<String, Object>> getPropertiesSupplier();
+				return (Dictionary<String, Object>)properties;
+			}
+			catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		};
+	}
 
 }

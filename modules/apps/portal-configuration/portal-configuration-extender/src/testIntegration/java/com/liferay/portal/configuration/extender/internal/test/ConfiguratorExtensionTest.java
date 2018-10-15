@@ -16,14 +16,19 @@ package com.liferay.portal.configuration.extender.internal.test;
 
 import com.liferay.arquillian.deploymentscenario.annotations.BndFile;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.extender.internal.ConfigConfigurationContentSupplierFactory;
+import com.liferay.portal.configuration.extender.internal.ConfigurationContentSupplierFactory;
 import com.liferay.portal.configuration.extender.internal.ConfigurationDescription;
 import com.liferay.portal.configuration.extender.internal.ConfigurationDescriptionFactory;
+import com.liferay.portal.configuration.extender.internal.ConfigurationDescriptionFactoryImpl;
 import com.liferay.portal.configuration.extender.internal.ConfiguratorExtension;
 import com.liferay.portal.configuration.extender.internal.FactoryConfigurationDescription;
 import com.liferay.portal.configuration.extender.internal.NamedConfigurationContent;
+import com.liferay.portal.configuration.extender.internal.PropertiesConfigurationContentSupplierFactory;
 import com.liferay.portal.configuration.extender.internal.SingleConfigurationDescription;
+import com.liferay.portal.configuration.extender.internal.URLNamedConfigurationContent;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.PropertiesUtil;
-import com.liferay.portal.kernel.util.Supplier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.function.Supplier;
 
 import org.apache.felix.utils.log.Logger;
 
@@ -51,6 +57,7 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -101,26 +108,17 @@ public class ConfiguratorExtensionTest {
 				new StringSingleNamedConfigurationContent(
 					"test.pid", "key=value")),
 			Arrays.asList(
-				new ConfigurationDescriptionFactory() {
+				namedConfigurationContent -> new SingleConfigurationDescription(
+					"exception",
+					new Supplier<Dictionary<String, Object>>() {
 
-					@Override
-					public ConfigurationDescription create(
-						NamedConfigurationContent namedConfigurationContent) {
+						@Override
+						public Dictionary<String, Object> get() {
+							throw new RuntimeException(
+								"This should be handled");
+						}
 
-						return new SingleConfigurationDescription(
-							"exception",
-							new Supplier<Dictionary<String, Object>>() {
-
-								@Override
-								public Dictionary<String, Object> get() {
-									throw new RuntimeException(
-										"This should be handled");
-								}
-
-							});
-					}
-
-				},
+					}),
 				new StringConfigurationDescriptionFactory()));
 
 		configuratorExtension.start();
@@ -345,6 +343,105 @@ public class ConfiguratorExtensionTest {
 
 		Assert.assertEquals(
 			Arrays.toString(configurations), 2, configurations.length);
+	}
+
+	@Test
+	public void testURLConfigSingleConfiguration() throws Exception {
+		ServiceRegistration<ConfigurationContentSupplierFactory>
+			serviceRegistration = _bundleContext.registerService(
+				ConfigurationContentSupplierFactory.class,
+				new ConfigConfigurationContentSupplierFactory(),
+				new HashMapDictionary<String, Object>() {
+					{
+						put("type", "config");
+					}
+				});
+
+		ConfiguratorExtension configuratorExtension = new ConfiguratorExtension(
+			_configurationAdmin, new Logger(_bundleContext), "aBundle",
+			Arrays.<NamedConfigurationContent>asList(
+				new URLNamedConfigurationContent(
+					"test.property.pid", "config",
+					new ByteArrayInputStream(
+						"key=[\"value1\", \"value2\"]".getBytes()))),
+			Arrays.asList(
+				new ConfigurationDescriptionFactoryImpl() {
+					{
+						activate(_bundleContext);
+					}
+				}));
+
+		try {
+			configuratorExtension.start();
+
+			_configurationExtensions.add(configuratorExtension);
+
+			Configuration[] configurations =
+				_configurationAdmin.listConfigurations(null);
+
+			Assert.assertEquals(
+				Arrays.toString(configurations), 1, configurations.length);
+
+			Configuration configuration = configurations[0];
+
+			Dictionary<String, Object> properties =
+				configuration.getProperties();
+
+			Assert.assertArrayEquals(
+				new String[] {"value1", "value2"},
+				(String[])properties.get("key"));
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
+	}
+
+	@Test
+	public void testURLPropertiesSingleConfiguration() throws Exception {
+		ServiceRegistration<ConfigurationContentSupplierFactory>
+			serviceRegistration = _bundleContext.registerService(
+				ConfigurationContentSupplierFactory.class,
+				new PropertiesConfigurationContentSupplierFactory(),
+				new HashMapDictionary<String, Object>() {
+					{
+						put("type", "properties");
+					}
+				});
+
+		ConfiguratorExtension configuratorExtension = new ConfiguratorExtension(
+			_configurationAdmin, new Logger(_bundleContext), "aBundle",
+			Arrays.<NamedConfigurationContent>asList(
+				new URLNamedConfigurationContent(
+					"test.property.pid", "properties",
+					new ByteArrayInputStream("key=value".getBytes()))),
+			Arrays.asList(
+				new ConfigurationDescriptionFactoryImpl() {
+					{
+						activate(_bundleContext);
+					}
+				}));
+
+		try {
+			configuratorExtension.start();
+
+			_configurationExtensions.add(configuratorExtension);
+
+			Configuration[] configurations =
+				_configurationAdmin.listConfigurations(null);
+
+			Assert.assertEquals(
+				Arrays.toString(configurations), 1, configurations.length);
+
+			Configuration configuration = configurations[0];
+
+			Dictionary<String, Object> properties =
+				configuration.getProperties();
+
+			Assert.assertEquals("value", properties.get("key"));
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
 	}
 
 	private void _startExtension(

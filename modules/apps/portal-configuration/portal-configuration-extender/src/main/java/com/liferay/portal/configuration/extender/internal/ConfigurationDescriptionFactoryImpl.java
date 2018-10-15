@@ -14,14 +14,11 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
-import com.liferay.portal.kernel.util.PropertiesUtil;
-import com.liferay.portal.kernel.util.Supplier;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.util.Dictionary;
-
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -36,8 +33,20 @@ public class ConfigurationDescriptionFactoryImpl
 		NamedConfigurationContent namedConfigurationContent) {
 
 		if (!(namedConfigurationContent instanceof
-				PropertiesFileNamedConfigurationContent)) {
+				URLNamedConfigurationContent)) {
 
+			return null;
+		}
+
+		URLNamedConfigurationContent urlFileNamedConfigurationContent =
+			(URLNamedConfigurationContent)namedConfigurationContent;
+
+		ConfigurationContentSupplierFactory
+			configurationContentSupplierFactory =
+				getConfigurationContentSupplierFactory(
+					urlFileNamedConfigurationContent.getType());
+
+		if (configurationContentSupplierFactory == null) {
 			return null;
 		}
 
@@ -54,7 +63,7 @@ public class ConfigurationDescriptionFactoryImpl
 
 			return new FactoryConfigurationDescription(
 				factoryPid, pid,
-				new PropertiesSupplier(
+				configurationContentSupplierFactory.create(
 					namedConfigurationContent.getInputStream()));
 		}
 		else {
@@ -62,39 +71,27 @@ public class ConfigurationDescriptionFactoryImpl
 
 			return new SingleConfigurationDescription(
 				pid,
-				new PropertiesSupplier(
+				configurationContentSupplierFactory.create(
 					namedConfigurationContent.getInputStream()));
 		}
 	}
 
-	private class PropertiesSupplier
-		implements Supplier<Dictionary<String, Object>> {
-
-		public PropertiesSupplier(InputStream inputStream) {
-			_inputStream = inputStream;
-		}
-
-		@Override
-		public Dictionary<String, Object> get() {
-			try {
-				return _loadProperties();
-			}
-			catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		}
-
-		private Dictionary<String, Object> _loadProperties()
-			throws IOException {
-
-			Dictionary<?, ?> properties = PropertiesUtil.load(
-				_inputStream, "UTF-8");
-
-			return (Dictionary<String, Object>)properties;
-		}
-
-		private final InputStream _inputStream;
-
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_configurationContentSupplierFactoryServiceTrackerMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext, ConfigurationContentSupplierFactory.class,
+				"type");
 	}
+
+	protected ConfigurationContentSupplierFactory
+		getConfigurationContentSupplierFactory(String type) {
+
+		return _configurationContentSupplierFactoryServiceTrackerMap.getService(
+			type);
+	}
+
+	private ServiceTrackerMap<String, ConfigurationContentSupplierFactory>
+		_configurationContentSupplierFactoryServiceTrackerMap;
 
 }

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
+import com.liferay.petra.string.StringPool;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -22,17 +24,18 @@ import java.net.URL;
 /**
  * @author Carlos Sierra Andrés
  */
-public final class PropertiesFileNamedConfigurationContent
+public final class URLNamedConfigurationContent
 	implements NamedConfigurationContent {
 
-	public PropertiesFileNamedConfigurationContent(
-		String name, InputStream inputStream) {
+	public URLNamedConfigurationContent(
+		String name, String type, InputStream inputStream) {
 
 		_name = name;
+		_type = type;
 		_inputStream = inputStream;
 	}
 
-	public PropertiesFileNamedConfigurationContent(URL url) {
+	public URLNamedConfigurationContent(URL url) {
 		String name = url.getFile();
 
 		if (name.startsWith("/")) {
@@ -45,12 +48,16 @@ public final class PropertiesFileNamedConfigurationContent
 			name = name.substring(lastIndexOfSlash + 1);
 		}
 
-		if (!name.endsWith(".properties")) {
-			throw new IllegalArgumentException(
-				"File name does not end with .properties");
-		}
+		int lastIndexOfDot = name.lastIndexOf('.');
 
-		_name = name.substring(0, name.length() - 11);
+		if (lastIndexOfDot > -1) {
+			_name = name.substring(0, lastIndexOfDot);
+			_type = name.substring(lastIndexOfDot + 1);
+		}
+		else {
+			_name = name;
+			_type = StringPool.BLANK;
+		}
 
 		try {
 			_inputStream = url.openStream();
@@ -70,7 +77,12 @@ public final class PropertiesFileNamedConfigurationContent
 		return _name;
 	}
 
+	public String getType() {
+		return _type;
+	}
+
 	private final InputStream _inputStream;
 	private final String _name;
+	private final String _type;
 
 }

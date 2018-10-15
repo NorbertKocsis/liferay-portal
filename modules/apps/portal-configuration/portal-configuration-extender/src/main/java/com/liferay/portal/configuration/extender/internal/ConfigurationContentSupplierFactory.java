@@ -14,18 +14,16 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
+import java.io.InputStream;
+
 import java.util.Dictionary;
 import java.util.function.Supplier;
 
 /**
  * @author Carlos Sierra Andrés
  */
-public interface ConfigurationDescription {
+public interface ConfigurationContentSupplierFactory {
 
-	public String getFactoryPid();
-
-	public String getPid();
-
-	public Supplier<Dictionary<String, Object>> getPropertiesSupplier();
+	public Supplier<Dictionary<String, Object>> create(InputStream inputStream);
 
 }

@@ -14,18 +14,35 @@
 
 package com.liferay.portal.configuration.extender.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import java.util.Dictionary;
 import java.util.function.Supplier;
+
+import org.apache.felix.cm.file.ConfigurationHandler;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Carlos Sierra Andrés
  */
-public interface ConfigurationDescription {
+@Component(property = "type=config")
+public class ConfigConfigurationContentSupplierFactory
+	implements ConfigurationContentSupplierFactory {
 
-	public String getFactoryPid();
+	@Override
+	public Supplier<Dictionary<String, Object>> create(
+		InputStream inputStream) {
 
-	public String getPid();
-
-	public Supplier<Dictionary<String, Object>> getPropertiesSupplier();
+		return () -> {
+			try {
+				return ConfigurationHandler.read(inputStream);
+			}
+			catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		};
+	}
 
 }
