@@ -16,6 +16,8 @@ package com.liferay.portal.struts;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.exception.LayoutPermissionException;
 import com.liferay.portal.kernel.exception.PortletActiveException;
 import com.liferay.portal.kernel.exception.UserActiveException;
@@ -44,6 +46,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.struts.LastPath;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -513,6 +516,21 @@ public class PortalRequestProcessor {
 				userTrackerPath.setPathDate(new Date());
 
 				userTracker.addPath(userTrackerPath);
+
+				try {
+					MethodHandler methodHandler = new MethodHandler(
+						LiveUsers.class.getMethod("addUserTrackerPath", long.class, String.class, UserTrackerPath.class), themeDisplay.getCompanyId(),
+						session.getId(), userTrackerPath);
+
+					ClusterRequest clusterRequest =
+						ClusterRequest.createMulticastRequest(
+							methodHandler, true);
+
+					ClusterExecutorUtil.execute(clusterRequest);
+				}
+				catch (NoSuchMethodException nsme) {
+					_log.error(nsme);
+				}
 			}
 		}
 

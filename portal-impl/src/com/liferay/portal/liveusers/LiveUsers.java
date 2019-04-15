@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.UserTracker;
+import com.liferay.portal.kernel.model.UserTrackerPath;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserTrackerLocalServiceUtil;
 import com.liferay.portal.kernel.service.persistence.UserTrackerUtil;
@@ -71,6 +72,16 @@ public class LiveUsers {
 						null);
 				}
 			}
+		}
+	}
+
+	public static void addUserTrackerPath(
+		long companyId, String sessionId, UserTrackerPath userTrackerPath) {
+
+		UserTracker userTracker = getUserTracker(companyId, sessionId);
+
+		if (userTracker != null) {
+			userTracker.addPath(userTrackerPath);
 		}
 	}
 
