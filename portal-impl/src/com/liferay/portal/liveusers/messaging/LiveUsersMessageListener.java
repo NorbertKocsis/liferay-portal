@@ -84,6 +84,23 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 		String sessionId = jsonObject.getString("sessionId");
 
 		LiveUsers.signOut(clusterNodeId, companyId, userId, sessionId);
+
+		try {
+			MethodHandler methodHandler = new MethodHandler(
+				LiveUsers.class.getMethod(
+					"signOut", String.class, long.class, long.class,
+					String.class),
+				clusterNodeId, companyId, userId, sessionId);
+
+			ClusterRequest clusterRequest =
+				ClusterRequest.createMulticastRequest(
+					methodHandler, true);
+
+			ClusterExecutorUtil.execute(clusterRequest);
+		}
+		catch (NoSuchMethodException nsme) {
+			_log.error(nsme);
+		}
 	}
 
 	@Override
