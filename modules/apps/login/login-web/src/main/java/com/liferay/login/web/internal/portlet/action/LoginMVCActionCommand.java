@@ -213,7 +213,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-		if (Validator.isNotNull(redirect)) {
+		if (Validator.isNotNull(redirect) && !PropsValues.PORTAL_JAAS_ENABLE) {
 			if (!themeDisplay.isSignedIn()) {
 				LiferayPortletResponse liferayPortletResponse =
 					_portal.getLiferayPortletResponse(actionResponse);
@@ -272,7 +272,10 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 					return;
 				}
 
-				actionResponse.sendRedirect(mainPath);
+				HttpServletResponse httpServletResponse =
+					_portal.getHttpServletResponse(actionResponse);
+
+				httpServletResponse.sendRedirect(redirect);
 			}
 		}
 	}
