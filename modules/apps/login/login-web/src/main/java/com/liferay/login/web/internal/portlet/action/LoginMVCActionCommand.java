@@ -276,7 +276,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			HttpServletResponse httpServletResponse =
 				_portal.getHttpServletResponse(actionResponse);
 
-			httpServletResponse.sendRedirect(redirect);
+			httpServletResponse.sendRedirect(mainPath);
 		}
 	}
 
