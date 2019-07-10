@@ -227,53 +227,56 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			}
 
 			actionResponse.sendRedirect(redirect);
+
+			return;
+		}
+
+		if (Validator.isNotNull(redirect)) {
+			if (!themeDisplay.isSignedIn()) {
+				LiferayPortletResponse liferayPortletResponse =
+					_portal.getLiferayPortletResponse(actionResponse);
+
+				String portletId = _portal.getPortletId(actionRequest);
+
+				PortletURL actionURL = liferayPortletResponse.createActionURL(
+					portletId);
+
+				actionURL.setParameter(
+					ActionRequest.ACTION_NAME, "/login/login");
+				actionURL.setParameter(
+					"saveLastPath", Boolean.FALSE.toString());
+				actionURL.setParameter("redirect", redirect);
+
+				actionRequest.setAttribute(
+					WebKeys.REDIRECT, actionURL.toString());
+
+				return;
+			}
+
+			redirect = _portal.escapeRedirect(redirect);
+
+			if (Validator.isNotNull(redirect) &&
+				!redirect.startsWith(Http.HTTP)) {
+
+				redirect = getCompleteRedirectURL(httpServletRequest, redirect);
+			}
+		}
+
+		if (Validator.isNotNull(redirect)) {
+			actionResponse.sendRedirect(redirect);
 		}
 		else {
-			if (Validator.isNotNull(redirect)) {
-				if (!themeDisplay.isSignedIn()) {
-					LiferayPortletResponse liferayPortletResponse =
-						_portal.getLiferayPortletResponse(actionResponse);
+			boolean doActionAfterLogin = ParamUtil.getBoolean(
+				actionRequest, "doActionAfterLogin");
 
-					PortletURL actionURL = liferayPortletResponse.createActionURL(
-						_portal.getPortletId(actionRequest));
-
-					actionURL.setParameter(
-						ActionRequest.ACTION_NAME, "/login/login");
-					actionURL.setParameter(
-						"saveLastPath", Boolean.FALSE.toString());
-					actionURL.setParameter("redirect", redirect);
-
-					actionRequest.setAttribute(
-						WebKeys.REDIRECT, actionURL.toString());
-
-					return;
-				}
-
-				redirect = _portal.escapeRedirect(redirect);
-
-				if (Validator.isNotNull(redirect) &&
-					!redirect.startsWith(Http.HTTP)) {
-
-					redirect = getCompleteRedirectURL(httpServletRequest, redirect);
-				}
+			if (doActionAfterLogin) {
+				return;
 			}
 
-			if (Validator.isNotNull(redirect)) {
-				actionResponse.sendRedirect(redirect);
-			}
-			else {
-				boolean doActionAfterLogin = ParamUtil.getBoolean(
-					actionRequest, "doActionAfterLogin");
+			HttpServletResponse httpServletResponse =
+				_portal.getHttpServletResponse(actionResponse);
 
-				if (doActionAfterLogin) {
-					return;
-				}
-
-				HttpServletResponse httpServletResponse =
-					_portal.getHttpServletResponse(actionResponse);
-
-				httpServletResponse.sendRedirect(redirect);
-			}
+			httpServletResponse.sendRedirect(redirect);
 		}
 	}
 
