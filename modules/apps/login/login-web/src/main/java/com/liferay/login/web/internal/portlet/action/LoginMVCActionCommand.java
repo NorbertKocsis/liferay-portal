@@ -212,35 +212,6 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-		if (Validator.isNotNull(redirect) && !PropsValues.PORTAL_JAAS_ENABLE) {
-			if (!themeDisplay.isSignedIn()) {
-				LiferayPortletResponse liferayPortletResponse =
-					_portal.getLiferayPortletResponse(actionResponse);
-
-				PortletURL actionURL = liferayPortletResponse.createActionURL(
-					_portal.getPortletId(actionRequest));
-
-				actionURL.setParameter(
-					ActionRequest.ACTION_NAME, "/login/login");
-				actionURL.setParameter(
-					"saveLastPath", Boolean.FALSE.toString());
-				actionURL.setParameter("redirect", redirect);
-
-				actionRequest.setAttribute(
-					WebKeys.REDIRECT, actionURL.toString());
-
-				return;
-			}
-
-			redirect = _portal.escapeRedirect(redirect);
-
-			if (Validator.isNotNull(redirect) &&
-				!redirect.startsWith(Http.HTTP)) {
-
-				redirect = getCompleteRedirectURL(httpServletRequest, redirect);
-			}
-		}
-
 		String mainPath = themeDisplay.getPathMain();
 
 		if (PropsValues.PORTAL_JAAS_ENABLE) {
@@ -258,6 +229,35 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			actionResponse.sendRedirect(redirect);
 		}
 		else {
+			if (Validator.isNotNull(redirect)) {
+				if (!themeDisplay.isSignedIn()) {
+					LiferayPortletResponse liferayPortletResponse =
+						_portal.getLiferayPortletResponse(actionResponse);
+
+					PortletURL actionURL = liferayPortletResponse.createActionURL(
+						_portal.getPortletId(actionRequest));
+
+					actionURL.setParameter(
+						ActionRequest.ACTION_NAME, "/login/login");
+					actionURL.setParameter(
+						"saveLastPath", Boolean.FALSE.toString());
+					actionURL.setParameter("redirect", redirect);
+
+					actionRequest.setAttribute(
+						WebKeys.REDIRECT, actionURL.toString());
+
+					return;
+				}
+
+				redirect = _portal.escapeRedirect(redirect);
+
+				if (Validator.isNotNull(redirect) &&
+					!redirect.startsWith(Http.HTTP)) {
+
+					redirect = getCompleteRedirectURL(httpServletRequest, redirect);
+				}
+			}
+
 			if (Validator.isNotNull(redirect)) {
 				actionResponse.sendRedirect(redirect);
 			}
