@@ -216,6 +216,8 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 		if (PropsValues.PORTAL_JAAS_ENABLE) {
 			if (Validator.isNotNull(redirect)) {
+				redirect = _portal.escapeRedirect(redirect);
+
 				redirect = mainPath.concat(
 					"/portal/protected?redirect="
 				).concat(
