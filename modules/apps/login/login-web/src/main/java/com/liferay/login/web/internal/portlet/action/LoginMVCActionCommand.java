@@ -212,6 +212,25 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
+		String mainPath = themeDisplay.getPathMain();
+
+		if (PropsValues.PORTAL_JAAS_ENABLE) {
+			if (Validator.isNotNull(redirect)) {
+				redirect = mainPath.concat(
+					"/portal/protected?redirect="
+				).concat(
+					URLCodec.encodeURL(redirect)
+				);
+			}
+			else {
+				redirect = mainPath.concat("/portal/protected");
+			}
+
+			actionResponse.sendRedirect(redirect);
+
+			return;
+		}
+
 		if (Validator.isNotNull(redirect)) {
 			if (!themeDisplay.isSignedIn()) {
 				LiferayPortletResponse liferayPortletResponse =
@@ -241,36 +260,21 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			}
 		}
 
-		String mainPath = themeDisplay.getPathMain();
-
-		if (PropsValues.PORTAL_JAAS_ENABLE) {
-			if (Validator.isNotNull(redirect)) {
-				redirect = mainPath.concat(
-					"/portal/protected?redirect="
-				).concat(
-					URLCodec.encodeURL(redirect)
-				);
-			}
-			else {
-				redirect = mainPath.concat("/portal/protected");
-			}
-
+		if (Validator.isNotNull(redirect)) {
 			actionResponse.sendRedirect(redirect);
 		}
 		else {
-			if (Validator.isNotNull(redirect)) {
-				actionResponse.sendRedirect(redirect);
-			}
-			else {
-				boolean doActionAfterLogin = ParamUtil.getBoolean(
-					actionRequest, "doActionAfterLogin");
+			boolean doActionAfterLogin = ParamUtil.getBoolean(
+				actionRequest, "doActionAfterLogin");
 
-				if (doActionAfterLogin) {
-					return;
-				}
-
-				actionResponse.sendRedirect(mainPath);
+			if (doActionAfterLogin) {
+				return;
 			}
+
+			HttpServletResponse httpServletResponse =
+				_portal.getHttpServletResponse(actionResponse);
+
+			httpServletResponse.sendRedirect(mainPath);
 		}
 	}
 
