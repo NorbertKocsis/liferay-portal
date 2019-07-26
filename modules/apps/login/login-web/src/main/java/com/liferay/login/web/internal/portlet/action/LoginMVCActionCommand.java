@@ -276,10 +276,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 				return;
 			}
 
-			HttpServletResponse httpServletResponse =
-				_portal.getHttpServletResponse(actionResponse);
-
-			httpServletResponse.sendRedirect(mainPath);
+			actionResponse.sendRedirect(mainPath);
 		}
 	}
 
