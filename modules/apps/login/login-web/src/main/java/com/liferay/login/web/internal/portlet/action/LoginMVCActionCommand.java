@@ -239,10 +239,8 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 				LiferayPortletResponse liferayPortletResponse =
 					_portal.getLiferayPortletResponse(actionResponse);
 
-				String portletId = _portal.getPortletId(actionRequest);
-
 				PortletURL actionURL = liferayPortletResponse.createActionURL(
-					portletId);
+					_portal.getPortletId(actionRequest));
 
 				actionURL.setParameter(
 					ActionRequest.ACTION_NAME, "/login/login");
