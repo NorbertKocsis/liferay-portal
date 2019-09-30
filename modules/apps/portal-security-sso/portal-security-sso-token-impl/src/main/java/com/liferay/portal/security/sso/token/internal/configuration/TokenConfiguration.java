@@ -32,6 +32,9 @@ import com.liferay.portal.security.sso.token.security.auth.TokenLocation;
 )
 public interface TokenConfiguration {
 
+	@Meta.AD(deflt = "0", name = "company-id", required = false)
+	public long companyId();
+
 	@Meta.AD(deflt = "false", name = "enabled", required = false)
 	public boolean enabled();
 
