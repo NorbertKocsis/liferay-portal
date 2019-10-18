@@ -603,6 +603,8 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 			ldapUser.getUserGroupIds(), ldapUser.isSendEmail(),
 			ldapUser.getServiceContext());
 
+		_userLocalService.updateEmailAddressVerified(user.getUserId(), true);
+
 		if (ldapUser.isUpdatePortrait()) {
 			byte[] portraitBytes = ldapUser.getPortraitBytes();
 
@@ -1633,6 +1635,8 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 			user = _userLocalService.updateStatus(
 				user.getUserId(), ldapUser.getStatus(), serviceContext);
 		}
+
+		_userLocalService.updateEmailAddressVerified(user.getUserId(), true);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug(
