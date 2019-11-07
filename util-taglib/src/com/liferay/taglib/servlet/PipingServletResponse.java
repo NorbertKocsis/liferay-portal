@@ -48,11 +48,10 @@ public class PipingServletResponse extends HttpServletResponseWrapper {
 		JspWriter jspWriter = pageContext.getOut();
 
 		if (!(pageContext instanceof PageContextWrapper) ||
-			(jspWriter instanceof BodyContent) || ServerDetector.isWebLogic()) {
+			(jspWriter instanceof BodyContent)) {
 
 			// This optimization cannot be applied to a page context with a
-			// pushed body, or to WebLogic because WebLogic relies on the
-			// WriterOutputStream bridging logic insde getOutputStream()
+			// pushed body
 
 			return new PipingServletResponse(httpServletResponse, jspWriter);
 		}
