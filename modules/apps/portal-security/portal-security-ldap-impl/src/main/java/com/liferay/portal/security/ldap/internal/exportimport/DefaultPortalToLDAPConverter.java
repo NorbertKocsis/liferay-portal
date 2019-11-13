@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
+import com.liferay.portal.kernel.security.auth.AuthenticationThreadLocal;
 import com.liferay.portal.kernel.security.auth.PasswordModificationThreadLocal;
 import com.liferay.portal.kernel.security.ldap.LDAPSettings;
 import com.liferay.portal.kernel.security.pwd.PasswordEncryptor;
@@ -309,7 +310,8 @@ public class DefaultPortalToLDAPConverter implements PortalToLDAPConverter {
 
 		if (PasswordModificationThreadLocal.isPasswordModified() &&
 			Validator.isNotNull(
-				PasswordModificationThreadLocal.getPasswordUnencrypted())) {
+				PasswordModificationThreadLocal.getPasswordUnencrypted()) &&
+			!AuthenticationThreadLocal.isAuthenticationInProgress()) {
 
 			String newPassword = getEncryptedPasswordForLDAP(
 				user, userMappings);
