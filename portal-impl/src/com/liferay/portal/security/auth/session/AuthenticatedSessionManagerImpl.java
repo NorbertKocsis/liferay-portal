@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserTracker;
 import com.liferay.portal.kernel.security.auth.AuthException;
 import com.liferay.portal.kernel.security.auth.AuthenticatedUserUUIDStoreUtil;
+import com.liferay.portal.kernel.security.auth.AuthenticationThreadLocal;
 import com.liferay.portal.kernel.security.auth.Authenticator;
 import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManager;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
@@ -86,235 +87,245 @@ public class AuthenticatedSessionManagerImpl
 			String password, boolean rememberMe, String authType)
 		throws Exception {
 
-		httpServletRequest = PortalUtil.getOriginalServletRequest(
-			httpServletRequest);
+		AuthenticationThreadLocal.setAuthenticationInProgress(true);
 
-		String queryString = httpServletRequest.getQueryString();
+		try {
+			httpServletRequest = PortalUtil.getOriginalServletRequest(
+				httpServletRequest);
 
-		if (Validator.isNotNull(queryString) &&
-			queryString.contains("password=")) {
+			String queryString = httpServletRequest.getQueryString();
 
-			String passwordParameterName = "password=";
+			if (Validator.isNotNull(queryString) &&
+				queryString.contains("password=")) {
 
-			String portletId = PortalUtil.getPortletId(httpServletRequest);
+				String passwordParameterName = "password=";
 
-			if (portletId != null) {
-				passwordParameterName =
-					PortalUtil.getPortletNamespace(portletId) +
-						passwordParameterName;
-			}
+				String portletId = PortalUtil.getPortletId(httpServletRequest);
 
-			int index = queryString.indexOf(passwordParameterName);
-
-			if ((index == 0) ||
-				((index > 0) &&
-				 (queryString.charAt(index - 1) == CharPool.AMPERSAND))) {
-
-				if (_log.isWarnEnabled()) {
-					String referer = httpServletRequest.getHeader(
-						HttpHeaders.REFERER);
-
-					StringBundler sb = new StringBundler(4);
-
-					sb.append("Ignoring login attempt because the password ");
-					sb.append("parameter was found for the request with the ");
-					sb.append("referer header: ");
-					sb.append(referer);
-
-					_log.warn(sb.toString());
+				if (portletId != null) {
+					passwordParameterName =
+						PortalUtil.getPortletNamespace(portletId) +
+							passwordParameterName;
 				}
 
-				return;
-			}
-		}
+				int index = queryString.indexOf(passwordParameterName);
 
-		CookieKeys.validateSupportCookie(httpServletRequest);
+				if ((index == 0) ||
+					((index > 0) &&
+					 (queryString.charAt(index - 1) == CharPool.AMPERSAND))) {
 
-		HttpSession session = httpServletRequest.getSession();
+					if (_log.isWarnEnabled()) {
+						String referer = httpServletRequest.getHeader(
+							HttpHeaders.REFERER);
 
-		Company company = PortalUtil.getCompany(httpServletRequest);
+						StringBundler sb = new StringBundler(4);
 
-		User user = _getAuthenticatedUser(
-			httpServletRequest, login, password, authType);
+						sb.append("Ignoring login attempt because the ");
+						sb.append("password parameter was found for the ");
+						sb.append("request with the referer header: ");
+						sb.append(referer);
 
-		if (!PropsValues.AUTH_SIMULTANEOUS_LOGINS) {
-			signOutSimultaneousLogins(user.getUserId());
-		}
+						_log.warn(sb.toString());
+					}
 
-		if (PropsValues.SESSION_ENABLE_PHISHING_PROTECTION) {
-			session = renewSession(httpServletRequest, session);
-		}
-
-		// Set cookies
-
-		String domain = CookieKeys.getDomain(httpServletRequest);
-
-		if (Validator.isNull(domain)) {
-			domain = null;
-		}
-
-		String userIdString = String.valueOf(user.getUserId());
-
-		session.setAttribute("j_username", userIdString);
-
-		if (PropsValues.PORTAL_JAAS_PLAIN_PASSWORD) {
-			session.setAttribute("j_password", password);
-		}
-		else {
-			session.setAttribute("j_password", user.getPassword());
-		}
-
-		session.setAttribute("j_remoteuser", userIdString);
-
-		if (PropsValues.SESSION_STORE_PASSWORD) {
-			session.setAttribute(WebKeys.USER_PASSWORD, password);
-		}
-
-		Cookie companyIdCookie = new Cookie(
-			CookieKeys.COMPANY_ID, String.valueOf(company.getCompanyId()));
-
-		if (domain != null) {
-			companyIdCookie.setDomain(domain);
-		}
-
-		companyIdCookie.setPath(StringPool.SLASH);
-
-		Cookie idCookie = new Cookie(
-			CookieKeys.ID,
-			Encryptor.encrypt(company.getKeyObj(), userIdString));
-
-		if (domain != null) {
-			idCookie.setDomain(domain);
-		}
-
-		idCookie.setPath(StringPool.SLASH);
-
-		int loginMaxAge = PropsValues.COMPANY_SECURITY_AUTO_LOGIN_MAX_AGE;
-
-		if (PropsValues.SESSION_DISABLED) {
-			rememberMe = true;
-		}
-
-		if (rememberMe) {
-			companyIdCookie.setMaxAge(loginMaxAge);
-			idCookie.setMaxAge(loginMaxAge);
-		}
-		else {
-
-			// This was explicitly changed from 0 to -1 so that the cookie lasts
-			// as long as the browser. This allows an external servlet wrapped
-			// in AutoLoginFilter to work throughout the client connection. The
-			// cookies ARE removed on an actual logout, so there is no security
-			// issue. See LEP-4678 and LEP-5177.
-
-			companyIdCookie.setMaxAge(-1);
-			idCookie.setMaxAge(-1);
-		}
-
-		boolean secure = httpServletRequest.isSecure();
-
-		if (secure && !PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS &&
-			!StringUtil.equalsIgnoreCase(
-				Http.HTTPS, PropsValues.WEB_SERVER_PROTOCOL)) {
-
-			Boolean httpsInitial = (Boolean)session.getAttribute(
-				WebKeys.HTTPS_INITIAL);
-
-			if ((httpsInitial == null) || !httpsInitial.booleanValue()) {
-				secure = false;
-			}
-		}
-
-		CookieKeys.addCookie(
-			httpServletRequest, httpServletResponse, companyIdCookie, secure);
-		CookieKeys.addCookie(
-			httpServletRequest, httpServletResponse, idCookie, secure);
-
-		if (rememberMe) {
-			Cookie loginCookie = new Cookie(CookieKeys.LOGIN, login);
-
-			if (domain != null) {
-				loginCookie.setDomain(domain);
+					return;
+				}
 			}
 
-			loginCookie.setMaxAge(loginMaxAge);
-			loginCookie.setPath(StringPool.SLASH);
+			CookieKeys.validateSupportCookie(httpServletRequest);
 
-			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, loginCookie, secure);
+			HttpSession session = httpServletRequest.getSession();
 
-			Cookie passwordCookie = new Cookie(
-				CookieKeys.PASSWORD,
-				Encryptor.encrypt(company.getKeyObj(), password));
+			Company company = PortalUtil.getCompany(httpServletRequest);
 
-			if (domain != null) {
-				passwordCookie.setDomain(domain);
+			User user = _getAuthenticatedUser(
+				httpServletRequest, login, password, authType);
+
+			if (!PropsValues.AUTH_SIMULTANEOUS_LOGINS) {
+				signOutSimultaneousLogins(user.getUserId());
 			}
 
-			passwordCookie.setMaxAge(loginMaxAge);
-			passwordCookie.setPath(StringPool.SLASH);
-
-			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, passwordCookie,
-				secure);
-
-			Cookie rememberMeCookie = new Cookie(
-				CookieKeys.REMEMBER_ME, Boolean.TRUE.toString());
-
-			if (domain != null) {
-				rememberMeCookie.setDomain(domain);
+			if (PropsValues.SESSION_ENABLE_PHISHING_PROTECTION) {
+				session = renewSession(httpServletRequest, session);
 			}
 
-			rememberMeCookie.setMaxAge(loginMaxAge);
-			rememberMeCookie.setPath(StringPool.SLASH);
+			// Set cookies
 
-			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, rememberMeCookie,
-				secure);
+			String domain = CookieKeys.getDomain(httpServletRequest);
 
-			Cookie screenNameCookie = new Cookie(
-				CookieKeys.SCREEN_NAME,
-				Encryptor.encrypt(company.getKeyObj(), user.getScreenName()));
-
-			if (domain != null) {
-				screenNameCookie.setDomain(domain);
+			if (Validator.isNull(domain)) {
+				domain = null;
 			}
 
-			screenNameCookie.setMaxAge(loginMaxAge);
-			screenNameCookie.setPath(StringPool.SLASH);
+			String userIdString = String.valueOf(user.getUserId());
 
-			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, screenNameCookie,
-				secure);
-		}
+			session.setAttribute("j_username", userIdString);
 
-		if (PropsValues.AUTH_USER_UUID_STORE_ENABLED) {
-			String userUUID = userIdString.concat(
-				StringPool.PERIOD
-			).concat(
-				String.valueOf(System.nanoTime())
-			);
-
-			Cookie userUUIDCookie = new Cookie(
-				CookieKeys.USER_UUID,
-				Encryptor.encrypt(company.getKeyObj(), userUUID));
-
-			userUUIDCookie.setPath(StringPool.SLASH);
-
-			session.setAttribute(CookieKeys.USER_UUID, userUUID);
-
-			if (rememberMe) {
-				userUUIDCookie.setMaxAge(loginMaxAge);
+			if (PropsValues.PORTAL_JAAS_PLAIN_PASSWORD) {
+				session.setAttribute("j_password", password);
 			}
 			else {
-				userUUIDCookie.setMaxAge(-1);
+				session.setAttribute("j_password", user.getPassword());
+			}
+
+			session.setAttribute("j_remoteuser", userIdString);
+
+			if (PropsValues.SESSION_STORE_PASSWORD) {
+				session.setAttribute(WebKeys.USER_PASSWORD, password);
+			}
+
+			Cookie companyIdCookie = new Cookie(
+				CookieKeys.COMPANY_ID, String.valueOf(company.getCompanyId()));
+
+			if (domain != null) {
+				companyIdCookie.setDomain(domain);
+			}
+
+			companyIdCookie.setPath(StringPool.SLASH);
+
+			Cookie idCookie = new Cookie(
+				CookieKeys.ID,
+				Encryptor.encrypt(company.getKeyObj(), userIdString));
+
+			if (domain != null) {
+				idCookie.setDomain(domain);
+			}
+
+			idCookie.setPath(StringPool.SLASH);
+
+			int loginMaxAge = PropsValues.COMPANY_SECURITY_AUTO_LOGIN_MAX_AGE;
+
+			if (PropsValues.SESSION_DISABLED) {
+				rememberMe = true;
+			}
+
+			if (rememberMe) {
+				companyIdCookie.setMaxAge(loginMaxAge);
+				idCookie.setMaxAge(loginMaxAge);
+			}
+			else {
+
+				// This was explicitly changed from 0 to -1 so that the cookie
+				// lasts as long as the browser. This allows an external servlet
+				// wrapped in AutoLoginFilter to work throughout the client
+				// connection. The cookies ARE removed on an actual logout, so
+				// there is no security issue. See LEP-4678 and LEP-5177.
+
+				companyIdCookie.setMaxAge(-1);
+				idCookie.setMaxAge(-1);
+			}
+
+			boolean secure = httpServletRequest.isSecure();
+
+			if (secure && !PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS &&
+				!StringUtil.equalsIgnoreCase(
+					Http.HTTPS, PropsValues.WEB_SERVER_PROTOCOL)) {
+
+				Boolean httpsInitial = (Boolean)session.getAttribute(
+					WebKeys.HTTPS_INITIAL);
+
+				if ((httpsInitial == null) || !httpsInitial.booleanValue()) {
+					secure = false;
+				}
 			}
 
 			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, userUUIDCookie,
+				httpServletRequest, httpServletResponse, companyIdCookie,
 				secure);
+			CookieKeys.addCookie(
+				httpServletRequest, httpServletResponse, idCookie, secure);
 
-			AuthenticatedUserUUIDStoreUtil.register(userUUID);
+			if (rememberMe) {
+				Cookie loginCookie = new Cookie(CookieKeys.LOGIN, login);
+
+				if (domain != null) {
+					loginCookie.setDomain(domain);
+				}
+
+				loginCookie.setMaxAge(loginMaxAge);
+				loginCookie.setPath(StringPool.SLASH);
+
+				CookieKeys.addCookie(
+					httpServletRequest, httpServletResponse, loginCookie,
+					secure);
+
+				Cookie passwordCookie = new Cookie(
+					CookieKeys.PASSWORD,
+					Encryptor.encrypt(company.getKeyObj(), password));
+
+				if (domain != null) {
+					passwordCookie.setDomain(domain);
+				}
+
+				passwordCookie.setMaxAge(loginMaxAge);
+				passwordCookie.setPath(StringPool.SLASH);
+
+				CookieKeys.addCookie(
+					httpServletRequest, httpServletResponse, passwordCookie,
+					secure);
+
+				Cookie rememberMeCookie = new Cookie(
+					CookieKeys.REMEMBER_ME, Boolean.TRUE.toString());
+
+				if (domain != null) {
+					rememberMeCookie.setDomain(domain);
+				}
+
+				rememberMeCookie.setMaxAge(loginMaxAge);
+				rememberMeCookie.setPath(StringPool.SLASH);
+
+				CookieKeys.addCookie(
+					httpServletRequest, httpServletResponse, rememberMeCookie,
+					secure);
+
+				Cookie screenNameCookie = new Cookie(
+					CookieKeys.SCREEN_NAME,
+					Encryptor.encrypt(
+						company.getKeyObj(), user.getScreenName()));
+
+				if (domain != null) {
+					screenNameCookie.setDomain(domain);
+				}
+
+				screenNameCookie.setMaxAge(loginMaxAge);
+				screenNameCookie.setPath(StringPool.SLASH);
+
+				CookieKeys.addCookie(
+					httpServletRequest, httpServletResponse, screenNameCookie,
+					secure);
+			}
+
+			if (PropsValues.AUTH_USER_UUID_STORE_ENABLED) {
+				String userUUID = userIdString.concat(
+					StringPool.PERIOD
+				).concat(
+					String.valueOf(System.nanoTime())
+				);
+
+				Cookie userUUIDCookie = new Cookie(
+					CookieKeys.USER_UUID,
+					Encryptor.encrypt(company.getKeyObj(), userUUID));
+
+				userUUIDCookie.setPath(StringPool.SLASH);
+
+				session.setAttribute(CookieKeys.USER_UUID, userUUID);
+
+				if (rememberMe) {
+					userUUIDCookie.setMaxAge(loginMaxAge);
+				}
+				else {
+					userUUIDCookie.setMaxAge(-1);
+				}
+
+				CookieKeys.addCookie(
+					httpServletRequest, httpServletResponse, userUUIDCookie,
+					secure);
+
+				AuthenticatedUserUUIDStoreUtil.register(userUUID);
+			}
+		}
+		finally {
+			AuthenticationThreadLocal.setAuthenticationInProgress(false);
 		}
 	}
 
