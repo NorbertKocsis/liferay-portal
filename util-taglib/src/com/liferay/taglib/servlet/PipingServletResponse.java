@@ -69,7 +69,7 @@ public class PipingServletResponse extends HttpServletResponseWrapper {
 				new ServletOutputStreamAdapter(
 					new WriterOutputStream(
 						jspWriter, httpServletResponse.getCharacterEncoding(),
-						jspWriter.getBufferSize(), true)));
+						true)));
 		}
 
 		if (!(pageContext instanceof PageContextWrapper) ||
