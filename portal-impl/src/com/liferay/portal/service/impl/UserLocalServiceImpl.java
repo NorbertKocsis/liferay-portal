@@ -6914,10 +6914,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			Company company = companyLocalService.getCompany(
 				toUser.getCompanyId());
 
-			mailMessage.setMessageId(
-				PortalUtil.getMailId(
-					company.getMx(), "user", toUser.getUserId(),
-					System.currentTimeMillis()));
+			mailMessage.setMessageId(PortalUtil.getMailId(company.getMx()));
 
 			mailService.sendEmail(mailMessage);
 		}

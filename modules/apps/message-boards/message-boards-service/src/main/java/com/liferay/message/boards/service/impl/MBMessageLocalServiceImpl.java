@@ -2247,10 +2247,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 			Date modifiedDate = parentMessage.getModifiedDate();
 
-			inReplyTo = _portal.getMailId(
-				company.getMx(), MBMailUtil.MESSAGE_POP_PORTLET_PREFIX,
-				message.getCategoryId(), parentMessage.getMessageId(),
-				modifiedDate.getTime());
+			inReplyTo = _portal.getMailId(company.getMx());
 
 			if (messageSubject.startsWith(
 					MBMessageConstants.MESSAGE_SUBJECT_PREFIX_RE)) {
