@@ -1202,6 +1202,15 @@ public class PortalUtil {
 			httpServletRequest, layout, locale, originalLocale);
 	}
 
+	public static String getMailId(String mx) {
+		return getPortal().getMailId(mx);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getMailId(String mx)}
+	 */
+	@Deprecated
 	public static String getMailId(
 		String mx, String popPortletPrefix, Object... ids) {
 

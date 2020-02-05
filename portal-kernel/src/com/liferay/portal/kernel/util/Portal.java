@@ -810,6 +810,13 @@ public interface Portal {
 		HttpServletRequest httpServletRequest, Layout layout, Locale locale,
 		Locale originalLocale);
 
+	public String getMailId(String mx);
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getMailId(String mx)}
+	 */
+	@Deprecated
 	public String getMailId(String mx, String popPortletPrefix, Object... ids);
 
 	public String getNetvibesURL(Portlet portlet, ThemeDisplay themeDisplay)
