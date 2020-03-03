@@ -8053,7 +8053,7 @@ public class PortalImpl implements Portal {
 			languageId = locale.getLanguage();
 		}
 
-		return StringPool.SLASH.concat(languageId);
+		return StringPool.SLASH + languageId + StringPool.SLASH;
 	}
 
 	private String _buildI18NPath(
@@ -8095,7 +8095,8 @@ public class PortalImpl implements Portal {
 			languageId = siteDefaultLocale.getLanguage();
 		}
 
-		return StringPool.SLASH.concat(LocaleUtil.toW3cLanguageId(languageId));
+		return StringPool.SLASH + LocaleUtil.toW3cLanguageId(languageId) +
+			StringPool.SLASH;
 	}
 
 	private boolean _containsHostname(
